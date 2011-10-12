@@ -6,27 +6,27 @@ package ast;
  */
 public class IdValor {
 
-    private NodoDeclaracion nodoIdentificador;
-    private NodoNumero nodoNumero = new NodoNumero();
+    private NodoDeclaracion id;
+    private NodoBase valor;
 
     public IdValor(NodoDeclaracion nodoIdentificador) {
-        this.nodoIdentificador = nodoIdentificador;
+        this.id = nodoIdentificador;
     }
 
-    public IdValor(NodoDeclaracion nodoIdentificador, NodoNumero nodoNumero) {
-        this.nodoIdentificador = nodoIdentificador;
-        this.nodoNumero = nodoNumero;
+    public IdValor(NodoDeclaracion nodoIdentificador, NodoBase nodoNumero) {
+        this.id = nodoIdentificador;
+        this.valor = nodoNumero;
     }
 
-    public NodoDeclaracion getNodoIdentificador() {
-        return nodoIdentificador;
+    public NodoDeclaracion getId() {
+        return id;
     }
 
-    public NodoNumero getNodoNumero() {
-        return nodoNumero;
+    public NodoBase getValor() {
+        return valor;
     }
 
-    public void setNodoNumero(NodoNumero nodoNumero) {
-        this.nodoNumero = nodoNumero;
+    public void setValor(NodoBase valor) {
+        this.valor = valor;
     }
 }

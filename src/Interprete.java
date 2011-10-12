@@ -135,7 +135,7 @@ public class Interprete {
         int step = (int) getValorNumerico(nodoFor.getStep());
         for (int i = desde; i != hasta; i += step) {
             IdValor iv = variables.get(nodoFor.getVariable());
-            iv.getNodoNumero().setValor((double) i);
+            ((NodoNumero) iv.getValor()).setValor((double) i);
             interpretarNodo(nodoFor.getCuerpo());
         }
     }
@@ -148,14 +148,12 @@ public class Interprete {
         //TODO validar tipo de dato
         //TODO si es tipo integer cast to (int)
         IdValor ladoDerecho = variables.get(nodoAsignacion.getIdentificador());
-        ladoDerecho.getNodoNumero().setValor(getValorNumerico(nodoAsignacion.getValor()));
-//        if (nodoAsignacion.getValor() instanceof NodoNumero) {
-//            NodoNumero num = (NodoNumero) nodoAsignacion.getValor();
-//            ladoDerecho.getNodoNumero().setValor(num.getValor());
-//        } else if (nodoAsignacion.getValor() instanceof NodoIdentificador) {
-//            NodoIdentificador id = (NodoIdentificador) nodoAsignacion.getValor();
-//            IdValor ladoIzquierdo = variables.get(id.getNombre());
-//            ladoDerecho.getNodoNumero().setValor(ladoIzquierdo.getNodoNumero().getValor().doubleValue());
+        ladoDerecho.setValor(nodoAsignacion.getValor());
+//        if (!ladoDerecho.getId().getTipo().equals(Tipo.Variable.STRING)) {
+//            NodoNumero num = (NodoNumero) ladoDerecho.getValor();
+//            num.setValor(getValorNumerico(nodoAsignacion.getValor()));
+//        } else {
+//            ladoDerecho.getValor().setValor(getValorNumerico(nodoAsignacion.getValor()));
 //        }
     }
 
@@ -209,8 +207,9 @@ public class Interprete {
         } else if (base instanceof NodoIdentificador) {
             NodoIdentificador id = (NodoIdentificador) base;
             IdValor iv = variables.get(id.getNombre());
-            if (!iv.getNodoIdentificador().getTipo().equals(Tipo.Variable.STRING)) {
-                return iv.getNodoNumero().getValor();
+            if (!iv.getId().getTipo().equals(Tipo.Variable.STRING)) {
+                return getValorNumerico(iv.getValor());
+                //return ((NodoNumero) iv.getValor()).getValor();
             }
         }
         throw new RuntimeException("Tratando de optener el valor numero de un nodo que no lo contiene");
