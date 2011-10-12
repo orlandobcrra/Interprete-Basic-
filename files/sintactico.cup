@@ -65,7 +65,7 @@ non terminal NodoBase print;
 non terminal NodoBase printAnidado;
 non terminal NodoBase printValor;
 non terminal NodoBase for;
-non terminal NodoOperacionBool condicion;
+non terminal NodoBase condicion;
 non terminal NodoBase expresionBool;
 non terminal NodoBase if;
 
@@ -389,17 +389,12 @@ condicion ::=
 			System.out.println("\t Regla: condicion ::= DIFERENTE");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.DIFERENTE);
 	:}
-	| LPARENT condicion:e RPARENT {:
-		if(debug)
-			System.out.println("\t Regla: expresion ::= PARENTESIS ");
-		RESULT = e;
-	:}
 ;
 
 if ::=
-	IF condicion:bool THEN LINEANUEVA seq_sent:then LINEANUEVA ENDIF {:
+	IF expresionBool:ex THEN LINEANUEVA seq_sent:then LINEANUEVA ENDIF {:
 		if(debug)
 			System.out.println("\t Regla: if ::= IF SOLO");
-		RESULT = new NodoIf(bool, then);
+		RESULT = new NodoIf(ex, then);
 	:}
 ;

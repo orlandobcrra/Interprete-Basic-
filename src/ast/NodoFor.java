@@ -11,6 +11,9 @@ public class NodoFor extends NodoBase {
     private String variable2;
     private NodoBase step;
 
+    public NodoFor() {
+    }
+
     public NodoFor(String variable, NodoBase desde, NodoBase hasta, NodoBase cuerpo, String variable2) {
         this(variable, desde, hasta, cuerpo, variable2, new NodoNumero("1"));
     }

@@ -4,23 +4,26 @@ import ast.NodoBase;
 
 public class NodoIf extends NodoBase {
 
-    private NodoOperacionBool condicion;
+    private NodoBase condicion;
     private NodoBase parteThen;
     private NodoBase parteElse;
 
-    public NodoIf(NodoOperacionBool condicion, NodoBase parteThen) {
+    public NodoIf() {
+    }
+
+    public NodoIf(NodoBase condicion, NodoBase parteThen) {
         this.condicion = condicion;
         this.parteThen = parteThen;
         this.parteElse = null;
     }
 
-    public NodoIf(NodoOperacionBool condicion, NodoBase parteThen, NodoBase parteElse) {
+    public NodoIf(NodoBase condicion, NodoBase parteThen, NodoBase parteElse) {
         this.condicion = condicion;
         this.parteThen = parteThen;
         this.parteElse = parteElse;
     }
 
-    public NodoOperacionBool getCondicion() {
+    public NodoBase getCondicion() {
         return condicion;
     }
 

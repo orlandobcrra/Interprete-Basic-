@@ -11,6 +11,7 @@ import ast.IdValor;
 import ast.NodoIdentificador;
 import ast.NodoIf;
 import ast.NodoOperacionBool;
+import ast.NodoOperacionBoolLogica;
 import ast.NodoOperacionMat;
 import ast.NodoOperacionMatUnaria;
 import ast.Tipo;
@@ -109,10 +110,10 @@ public class Interprete {
                 }
             } else {
                 System.out.print(getValorNumerico(valor));
-            }            
+            }
             //si es una sentencia print con varios valores separados por ";"
             valor = valor.getHermanoDerecha();
-            if(valor!=null){
+            if (valor != null) {
                 System.out.print(" ");
             }
         } while (valor != null);
@@ -161,10 +162,31 @@ public class Interprete {
     }
 
     private void nodoIf(NodoIf nodoIf) {
-        if (nodoOperacionBool(nodoIf.getCondicion())) {
+        boolean b = false;
+        if (nodoIf.getCondicion() instanceof NodoOperacionBool) {
+            b = nodoOperacionBool((NodoOperacionBool) nodoIf.getCondicion());
+        } else if (nodoIf.getCondicion() instanceof NodoOperacionBoolLogica) {
+           b=nodoOperacionBoolLogica((NodoOperacionBoolLogica) nodoIf.getCondicion());
+        }
+        if (b) {
             interpretarNodo(nodoIf.getParteThen());
         } else {
             interpretarNodo(nodoIf.getParteElse());
+        }
+    }
+
+    private boolean nodoOperacionBoolLogica(NodoOperacionBoolLogica bool) {
+        boolean derecho = nodoOperacionBool((NodoOperacionBool) bool.getOpDerecho());
+        boolean izquierdo = nodoOperacionBool((NodoOperacionBool) bool.getOpIzquierdo());
+        switch (bool.getTipo()) {
+            case AND: {
+                return derecho && izquierdo;
+            }
+            case OR: {
+                return derecho && izquierdo;
+            }
+            default:
+                return false;
         }
     }
 

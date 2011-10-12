@@ -10,6 +10,9 @@ public class NodoOperacionMat extends NodoBase {
     private NodoBase opIzquierdo;
     private Tipo.OpMat tipo;
 
+    public NodoOperacionMat() {
+    }
+
     public NodoOperacionMat(NodoBase opDerecho, NodoBase opIzquierdo, Tipo.OpMat tipo) {
         this.opDerecho = opDerecho;
         this.opIzquierdo = opIzquierdo;

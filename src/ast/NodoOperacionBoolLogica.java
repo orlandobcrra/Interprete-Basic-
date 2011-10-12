@@ -10,6 +10,9 @@ public class NodoOperacionBoolLogica extends NodoBase {
     private NodoBase opIzquierdo;
     private Tipo.OpBoolLogica tipo;
 
+    public NodoOperacionBoolLogica() {
+    }
+
     public NodoOperacionBoolLogica(NodoBase opDerecho, NodoBase opIzquierdo, Tipo.OpBoolLogica tipo) {
         this.opDerecho = opDerecho;
         this.opIzquierdo = opIzquierdo;

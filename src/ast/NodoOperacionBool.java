@@ -10,6 +10,9 @@ public class NodoOperacionBool extends NodoBase {
     private NodoBase opIzquierdo;
     private Tipo.OpBool tipo;
 
+    public NodoOperacionBool() {
+    }
+
     public NodoOperacionBool(NodoBase opDerecho, NodoBase opIzquierdo, Tipo.OpBool tipo) {
         this.opDerecho = opDerecho;
         this.opIzquierdo = opIzquierdo;
