@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package ast;
 
 /**
@@ -10,21 +6,21 @@ package ast;
  */
 public class NodoOperacionBool extends NodoBase {
 
-    private NodoNumero opDerecho;
-    private NodoNumero opIzquierdo;
+    private NodoBase opDerecho;
+    private NodoBase opIzquierdo;
     private Tipo.OpBool tipo;
 
-    public NodoOperacionBool(NodoNumero opDerecho, NodoNumero opIzquierdo, Tipo.OpBool tipo) {
+    public NodoOperacionBool(NodoBase opDerecho, NodoBase opIzquierdo, Tipo.OpBool tipo) {
         this.opDerecho = opDerecho;
         this.opIzquierdo = opIzquierdo;
         this.tipo = tipo;
     }
 
-    public NodoNumero getOpDerecho() {
+    public NodoBase getOpDerecho() {
         return opDerecho;
     }
 
-    public NodoNumero getOpIzquierdo() {
+    public NodoBase getOpIzquierdo() {
         return opIzquierdo;
     }
 

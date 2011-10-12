@@ -21,7 +21,7 @@ import java_cup.runtime.SymbolFactory;
 %eofval}
 
 digito			= [0-9]
-numero			= "-"?{digito}+("."{digito}+)?
+numero			= {digito}+("."{digito}+)?
 letra			= [a-zA-Z]
 identificador	= {letra}([a-zA-Z0-9.%$])*
 nuevalinea		= \n | \n\r | \r\n

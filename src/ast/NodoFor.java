@@ -5,24 +5,17 @@ import ast.NodoBase;
 public class NodoFor extends NodoBase {
 
     private String variable;
-    private Integer desde;
-    private Integer hasta;
+    private NodoBase desde;
+    private NodoBase hasta;
     private NodoBase cuerpo;
     private String variable2;
-    private Integer step=1;
+    private NodoBase step;
 
-    public NodoFor() {
+    public NodoFor(String variable, NodoBase desde, NodoBase hasta, NodoBase cuerpo, String variable2) {
+        this(variable, desde, hasta, cuerpo, variable2, new NodoNumero("1"));
     }
 
-    public NodoFor(String variable, Integer desde, Integer hasta, NodoBase cuerpo, String variable2) {
-        this.variable = variable;
-        this.desde = desde;
-        this.hasta = hasta;
-        this.cuerpo = cuerpo;
-        this.variable2 = variable2;
-    }
-
-    public NodoFor(String variable, Integer desde, Integer hasta, NodoBase cuerpo, String variable2, Integer step) {
+    public NodoFor(String variable, NodoBase desde, NodoBase hasta, NodoBase cuerpo, String variable2, NodoBase step) {
         this.variable = variable;
         this.desde = desde;
         this.hasta = hasta;
@@ -35,11 +28,11 @@ public class NodoFor extends NodoBase {
         return cuerpo;
     }
 
-    public Integer getDesde() {
+    public NodoBase getDesde() {
         return desde;
     }
 
-    public Integer getHasta() {
+    public NodoBase getHasta() {
         return hasta;
     }
 
@@ -51,7 +44,7 @@ public class NodoFor extends NodoBase {
         return variable2;
     }
 
-    public Integer getStep() {
+    public NodoBase getStep() {
         return step;
     }
 }

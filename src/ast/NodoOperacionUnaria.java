@@ -4,16 +4,15 @@ package ast;
  *
  * @author Personal
  */
-public class NodoOperacionUnaria extends NodoNumero {
+public class NodoOperacionUnaria extends NodoBase {
 
-    private NodoNumero nodoNumero;
+    private NodoBase valor;
 
-    public NodoOperacionUnaria(NodoNumero nodoNumero) {
-        this.nodoNumero = nodoNumero;
+    public NodoOperacionUnaria(NodoBase valor) {
+        this.valor = valor;
     }
 
-    @Override
-    public Double getValor() {
-        return nodoNumero.getValor() * -1;
+    public NodoBase getValor() {
+        return valor;
     }
 }

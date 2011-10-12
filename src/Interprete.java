@@ -11,7 +11,10 @@ import ast.IdValor;
 import ast.NodoIdentificador;
 import ast.NodoIf;
 import ast.NodoOperacionBool;
+import ast.NodoOperacionMat;
+import ast.NodoOperacionUnaria;
 import ast.Tipo;
+import ast.Tipo.OpMat;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -92,17 +95,20 @@ public class Interprete {
                 //elimina las comillas
                 cadena = cadena.substring(1, cadena.length() - 1);
                 System.out.print(cadena);
-            } else if (valor instanceof NodoNumero) {
-                NodoNumero nodoExpresion = (NodoNumero) valor;
-                System.out.print(nodoExpresion.getValor());
-            } else if (valor instanceof NodoIdentificador) {
-                NodoIdentificador identificador = (NodoIdentificador) valor;
-                IdValor iv = variables.get(identificador.getNombre());
-                if (iv.getNodoIdentificador().getTipo().equals(Tipo.Variable.INTEGER)) {
-                    System.out.print((int) iv.getNodoNumero().getValor().doubleValue());
-                } else {
-                    System.out.print(iv.getNodoNumero().getValor().doubleValue());
-                }
+//            } else if (valor instanceof NodoNumero) {
+//                NodoNumero nodoExpresion = (NodoNumero) valor;
+//                System.out.print(nodoExpresion.getValor());
+//            } else if (valor instanceof NodoIdentificador) {
+//                NodoIdentificador identificador = (NodoIdentificador) valor;
+//                IdValor iv = variables.get(identificador.getNombre());
+//                if (iv.getNodoIdentificador().getTipo().equals(Tipo.Variable.INTEGER)) {
+//                    System.out.print((int) iv.getNodoNumero().getValor().doubleValue());
+//                } else {
+//                    System.out.print(iv.getNodoNumero().getValor().doubleValue());
+//                }
+//            }
+            } else {
+                System.out.println(getValorNumerico(valor));
             }
             //si es una sentencia print con varios valores separados por ";"
             valor = valor.getHermanoDerecha();
@@ -124,7 +130,10 @@ public class Interprete {
     }
 
     private void nodoFor(NodoFor nodoFor) {
-        for (int i = nodoFor.getDesde(); i != nodoFor.getHasta(); i += nodoFor.getStep()) {
+        int desde = (int) getValorNumerico(nodoFor.getDesde());
+        int hasta = (int) getValorNumerico(nodoFor.getHasta());
+        int step = (int) getValorNumerico(nodoFor.getStep());
+        for (int i = desde; i != hasta; i += step) {
             IdValor iv = variables.get(nodoFor.getVariable());
             iv.getNodoNumero().setValor((double) i);
             interpretarNodo(nodoFor.getCuerpo());
@@ -137,15 +146,17 @@ public class Interprete {
 
     private void nodoAsignacion(NodoAsignacion nodoAsignacion) {
         //TODO validar tipo de dato
+        //TODO si es tipo integer cast to (int)
         IdValor ladoDerecho = variables.get(nodoAsignacion.getIdentificador());
-        if (nodoAsignacion.getValor() instanceof NodoNumero) {
-            NodoNumero num = (NodoNumero) nodoAsignacion.getValor();
-            ladoDerecho.getNodoNumero().setValor(num.getValor());
-        } else if (nodoAsignacion.getValor() instanceof NodoIdentificador) {
-            NodoIdentificador id = (NodoIdentificador) nodoAsignacion.getValor();
-            IdValor ladoIzquierdo = variables.get(id.getNombre());
-            ladoDerecho.getNodoNumero().setValor(ladoIzquierdo.getNodoNumero().getValor().doubleValue());
-        }
+        ladoDerecho.getNodoNumero().setValor(getValorNumerico(nodoAsignacion.getValor()));
+//        if (nodoAsignacion.getValor() instanceof NodoNumero) {
+//            NodoNumero num = (NodoNumero) nodoAsignacion.getValor();
+//            ladoDerecho.getNodoNumero().setValor(num.getValor());
+//        } else if (nodoAsignacion.getValor() instanceof NodoIdentificador) {
+//            NodoIdentificador id = (NodoIdentificador) nodoAsignacion.getValor();
+//            IdValor ladoIzquierdo = variables.get(id.getNombre());
+//            ladoDerecho.getNodoNumero().setValor(ladoIzquierdo.getNodoNumero().getValor().doubleValue());
+//        }
     }
 
     private void nodoIf(NodoIf nodoIf) {
@@ -157,33 +168,73 @@ public class Interprete {
     }
 
     private boolean nodoOperacionBool(NodoOperacionBool bool) {
+        double derecho = getValorNumerico(bool.getOpDerecho());
+        double izquierdo = getValorNumerico(bool.getOpIzquierdo());
         switch (bool.getTipo()) {
             case IGUAL: {
-                return bool.getOpDerecho().getValor().doubleValue()
-                        == bool.getOpIzquierdo().getValor().doubleValue();
+                return derecho == izquierdo;
             }
             case MENOR: {
-                return bool.getOpDerecho().getValor().doubleValue()
-                        < bool.getOpIzquierdo().getValor().doubleValue();
+                return derecho < izquierdo;
             }
             case MENORIGUAL: {
-                return bool.getOpDerecho().getValor().doubleValue()
-                        <= bool.getOpIzquierdo().getValor().doubleValue();
+                return derecho <= izquierdo;
             }
             case MAYOR: {
-                return bool.getOpDerecho().getValor().doubleValue()
-                        > bool.getOpIzquierdo().getValor().doubleValue();
+                return derecho > izquierdo;
             }
             case MAYORIGUAL: {
-                return bool.getOpDerecho().getValor().doubleValue()
-                        >= bool.getOpIzquierdo().getValor().doubleValue();
+                return derecho >= izquierdo;
             }
             case DIFERENTE: {
-                return bool.getOpDerecho().getValor().doubleValue()
-                        != bool.getOpIzquierdo().getValor().doubleValue();
+                return derecho != izquierdo;
             }
             default:
                 return false;
+        }
+    }
+
+    private double getValorNumerico(NodoBase base) {
+        if (base instanceof NodoNumero) {
+            return ((NodoNumero) base).getValor();
+        } else if (base instanceof NodoOperacionMat) {
+            NodoOperacionMat mat = (NodoOperacionMat) base;
+            double derecho = getValorNumerico(mat.getOpDerecho());
+            double izquierdo = getValorNumerico(mat.getOpIzquierdo());
+            return getValorNumerico(derecho, izquierdo, mat.getTipo());
+        } else if (base instanceof NodoOperacionUnaria) {
+            NodoOperacionUnaria unaria = (NodoOperacionUnaria) base;
+            double num = getValorNumerico(unaria.getValor());
+            return num * -1;
+        } else if (base instanceof NodoIdentificador) {
+            NodoIdentificador id = (NodoIdentificador) base;
+            IdValor iv = variables.get(id.getNombre());
+            if (!iv.getNodoIdentificador().getTipo().equals(Tipo.Variable.STRING)) {
+                return iv.getNodoNumero().getValor();
+            }
+        }
+        throw new RuntimeException("Tratando de optener el valor numero de un nodo que no lo contiene");
+    }
+
+    private double getValorNumerico(double derecho, double izquierdo, OpMat tipo) {
+        switch (tipo) {
+            case SUMA: {
+                return derecho + izquierdo;
+            }
+            case REST: {
+                return derecho - izquierdo;
+            }
+            case MULT: {
+                return derecho * izquierdo;
+            }
+            case DIVI: {
+                return derecho / izquierdo;
+            }
+            case POTE: {
+                return Math.pow(derecho, izquierdo);
+            }
+            default:
+                return 0.0;
         }
     }
 }

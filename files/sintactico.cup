@@ -60,8 +60,7 @@ non terminal NodoBase sent;
 non terminal NodoBase declaraciones;
 non terminal NodoBase declaracion;
 non terminal NodoBase asignacion;
-non terminal NodoBase valor;
-non terminal NodoNumero expresion;
+non terminal NodoBase expresion;
 non terminal NodoBase print;
 non terminal NodoBase printAnidado;
 non terminal NodoBase printValor;
@@ -205,23 +204,10 @@ declaracion ::=
 ;
 
 asignacion ::=
-	IDENTIFICADOR:variable IGUAL valor:valor {:
+	IDENTIFICADOR:variable IGUAL expresion:valor {:
 		if(debug)
 			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
 		RESULT = new NodoAsignacion(variable, valor);
-	:}
-;
-
-valor ::=
-	expresion:ex {:
-		if(debug)
-			System.out.println("\t Regla: valor ::= expresion ");
-		RESULT = ex;
-	:}
-	| IDENTIFICADOR:variable {:
-		if(debug)
-			System.out.println("\t Regla: valor ::= IDENTIFICADOR ");
-		RESULT = new NodoIdentificador(variable);
 	:}
 ;
 
@@ -230,6 +216,11 @@ expresion ::=
 		if(debug)
 			System.out.println("\t Regla: expresion ::= NUMERO ");
 		RESULT = new NodoNumero(num);
+	:}
+	| IDENTIFICADOR:variable {:
+		if(debug)
+			System.out.println("\t Regla: valor ::= IDENTIFICADOR ");
+		RESULT = new NodoIdentificador(variable);
 	:}
 	| expresion:e1 SUMA expresion:e2 {:
 		if(debug)
@@ -321,23 +312,18 @@ printValor ::=
 			System.out.println("\t Regla: printValor ::= expresion");
 		RESULT = ex;
 	:}
-	| IDENTIFICADOR:variable {:
-		if(debug)
-			System.out.println("\t Regla: printValor ::= IDENTIFICADOR");
-		RESULT = new NodoIdentificador(variable);
-	:}
 ;
 
 for ::=
 	FOR IDENTIFICADOR:variable IGUAL expresion:desde TO expresion:hasta LINEANUEVA seq_sent:cuerpo LINEANUEVA NEXT IDENTIFICADOR:variable2 {:
 		if(debug)
 			System.out.println("\t Regla: for ::= Todo el FOR");
-		RESULT = new NodoFor(variable, desde.getValor().intValue(), hasta.getValor().intValue(), cuerpo, variable2);
+		RESULT = new NodoFor(variable, desde, hasta, cuerpo, variable2);
 	:}
 	| FOR IDENTIFICADOR:variable IGUAL expresion:desde TO expresion:hasta STEP expresion:step LINEANUEVA seq_sent:cuerpo LINEANUEVA NEXT IDENTIFICADOR:variable2 {:
 		if(debug)
 			System.out.println("\t Regla: for ::= Todo el FOR");
-		RESULT = new NodoFor(variable, desde.getValor().intValue(), hasta.getValor().intValue(), cuerpo, variable2, step.getValor().intValue());
+		RESULT = new NodoFor(variable, desde, hasta, cuerpo, variable2, step);
 	:}
 ;
 
