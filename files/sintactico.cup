@@ -31,6 +31,7 @@ terminal DIVI;
 terminal POTE;
 terminal LPARENT;
 terminal RPARENT;
+terminal SIGNO;
 terminal PRINT;
 terminal CADENA;
 terminal PTCO;
@@ -70,6 +71,7 @@ non terminal NodoBase if;
 
 precedence left REST, SUMA;
 precedence left MULT, DIVI;
+precedence left SIGNO;
 precedence right POTE;
 
 
@@ -254,6 +256,12 @@ expresion ::=
 			System.out.println("\t Regla: expresion ::= POTE ");
 		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.POTE);
 	:}
+	| REST expresion:ex {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= RESTA expresion ");
+		RESULT = new NodoOperacionUnaria(ex);
+	:}
+	%prec SIGNO
 	| LPARENT expresion:e RPARENT {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= PARENTESIS ");
