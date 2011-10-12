@@ -33,7 +33,7 @@ terminal LPARENT;
 terminal RPARENT;
 terminal SIGNO;
 terminal PRINT;
-terminal CADENA;
+terminal String CADENA;
 terminal PTCO;
 terminal INPUT;
 terminal FOR;
@@ -209,6 +209,11 @@ asignacion ::=
 			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
 		RESULT = new NodoAsignacion(variable, valor);
 	:}
+	| IDENTIFICADOR:variable IGUAL CADENA:valor {:
+		if(debug)
+			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
+		RESULT = new NodoAsignacion(variable, new NodoCadena(valor));
+	:}
 ;
 
 expresion ::= 
@@ -300,12 +305,7 @@ printValor ::=
 	CADENA:cadena {:
 		if(debug)
 			System.out.println("\t Regla: printValor ::= CADENA");
-		if(cadena!=null){
-			RESULT = new NodoCadena(cadena.toString());		
-		}else{
-			RESULT = null;
-			System.err.println("Error: printValor ::= SIN CADENA");
-		}
+		RESULT = new NodoCadena(cadena.toString());				
 	:}
 	| expresion:ex {:
 		if(debug)

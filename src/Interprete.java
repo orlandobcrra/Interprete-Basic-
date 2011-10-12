@@ -87,6 +87,7 @@ public class Interprete {
      */
     private void nodoEscribir(NodoEscribir nodoEscribir) {
         NodoBase valor = nodoEscribir.getValor();
+
         //Para todos los valores del print
         do {
             if (valor instanceof NodoCadena) {
@@ -95,20 +96,19 @@ public class Interprete {
                 //elimina las comillas
                 cadena = cadena.substring(1, cadena.length() - 1);
                 System.out.print(cadena);
-//            } else if (valor instanceof NodoNumero) {
-//                NodoNumero nodoExpresion = (NodoNumero) valor;
-//                System.out.print(nodoExpresion.getValor());
-//            } else if (valor instanceof NodoIdentificador) {
-//                NodoIdentificador identificador = (NodoIdentificador) valor;
-//                IdValor iv = variables.get(identificador.getNombre());
-//                if (iv.getNodoIdentificador().getTipo().equals(Tipo.Variable.INTEGER)) {
-//                    System.out.print((int) iv.getNodoNumero().getValor().doubleValue());
-//                } else {
-//                    System.out.print(iv.getNodoNumero().getValor().doubleValue());
-//                }
-//            }
+            } else if (valor instanceof NodoIdentificador) {
+                NodoIdentificador id = (NodoIdentificador) valor;
+                IdValor iv = variables.get(id.getNombre());
+                if (iv.getId().getTipo().equals(Tipo.Variable.STRING)) {
+                    NodoCadena nodoCadena = (NodoCadena) iv.getValor();
+                    String cadena = nodoCadena.getCadena();
+                    cadena = cadena.substring(1, cadena.length() - 1);
+                    System.out.print(cadena);
+                } else {
+                    System.out.print(getValorNumerico(valor));
+                }
             } else {
-                System.out.println(getValorNumerico(valor));
+                System.out.print(getValorNumerico(valor));
             }
             //si es una sentencia print con varios valores separados por ";"
             valor = valor.getHermanoDerecha();
