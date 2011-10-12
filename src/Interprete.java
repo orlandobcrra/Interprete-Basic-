@@ -12,7 +12,7 @@ import ast.NodoIdentificador;
 import ast.NodoIf;
 import ast.NodoOperacionBool;
 import ast.NodoOperacionMat;
-import ast.NodoOperacionUnaria;
+import ast.NodoOperacionMatUnaria;
 import ast.Tipo;
 import ast.Tipo.OpMat;
 import java.io.IOException;
@@ -203,8 +203,8 @@ public class Interprete {
             double derecho = getValorNumerico(mat.getOpDerecho());
             double izquierdo = getValorNumerico(mat.getOpIzquierdo());
             return getValorNumerico(derecho, izquierdo, mat.getTipo());
-        } else if (base instanceof NodoOperacionUnaria) {
-            NodoOperacionUnaria unaria = (NodoOperacionUnaria) base;
+        } else if (base instanceof NodoOperacionMatUnaria) {
+            NodoOperacionMatUnaria unaria = (NodoOperacionMatUnaria) base;
             double num = getValorNumerico(unaria.getValor());
             return num * -1;
         } else if (base instanceof NodoIdentificador) {

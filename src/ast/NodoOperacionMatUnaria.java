@@ -4,11 +4,11 @@ package ast;
  *
  * @author Personal
  */
-public class NodoOperacionUnaria extends NodoBase {
+public class NodoOperacionMatUnaria extends NodoBase {
 
     private NodoBase valor;
 
-    public NodoOperacionUnaria(NodoBase valor) {
+    public NodoOperacionMatUnaria(NodoBase valor) {
         this.valor = valor;
     }
 

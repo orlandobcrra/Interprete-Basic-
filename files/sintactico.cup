@@ -66,12 +66,15 @@ non terminal NodoBase printAnidado;
 non terminal NodoBase printValor;
 non terminal NodoBase for;
 non terminal NodoOperacionBool condicion;
+non terminal NodoBase expresionBool;
 non terminal NodoBase if;
 
 precedence left REST, SUMA;
 precedence left MULT, DIVI;
 precedence left SIGNO;
 precedence right POTE;
+precedence left AND, OR;
+precedence right NO;
 
 
 /* REGLAS GRAMATICALES */
@@ -255,7 +258,7 @@ expresion ::=
 	| REST expresion:ex {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= RESTA expresion ");
-		RESULT = new NodoOperacionUnaria(ex);
+		RESULT = new NodoOperacionMatUnaria(ex);
 	:}
 	%prec SIGNO
 	| LPARENT expresion:e RPARENT {:
@@ -327,6 +330,34 @@ for ::=
 	:}
 ;
 
+expresionBool ::=
+	condicion:c1 AND condicion:c2 {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= expresionBool AND condicion ");
+		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.AND);
+	:}
+	| condicion:c1 OR condicion:c2 {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= expresionBool OR condicion");
+		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.OR);
+	:}
+	| NO expresionBool:ex {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= NO expresionBool");
+		RESULT = new NodoOperacionBoolUnaria(ex);
+	:}
+	| condicion:c {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= condicion");
+		RESULT = c;
+	:}
+	| LPARENT expresionBool:ex RPARENT {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= PARENTESIS ");
+		RESULT = ex;
+	:}
+;
+
 condicion ::=
 	expresion:e1 IGUAL expresion:e2 {:
 		if(debug)
@@ -357,6 +388,11 @@ condicion ::=
 		if(debug)
 			System.out.println("\t Regla: condicion ::= DIFERENTE");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.DIFERENTE);
+	:}
+	| LPARENT condicion:e RPARENT {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= PARENTESIS ");
+		RESULT = e;
 	:}
 ;
 
