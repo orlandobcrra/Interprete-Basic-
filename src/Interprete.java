@@ -109,9 +109,12 @@ public class Interprete {
                 }
             } else {
                 System.out.print(getValorNumerico(valor));
-            }
+            }            
             //si es una sentencia print con varios valores separados por ";"
             valor = valor.getHermanoDerecha();
+            if(valor!=null){
+                System.out.print(" ");
+            }
         } while (valor != null);
 
         if (nodoEscribir.isSaltoDeLinea()) {    //Termina con nueva linea
