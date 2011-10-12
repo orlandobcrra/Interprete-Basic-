@@ -11,7 +11,6 @@ action code {:
 	}
 :}
 
-
 /* Simbolos Terminales */
 terminal COMENTARIO;
 terminal LINEANUEVA;
@@ -60,6 +59,7 @@ non terminal NodoBase sent;
 non terminal NodoBase declaraciones;
 non terminal NodoBase declaracion;
 non terminal NodoBase asignacion;
+non terminal NodoBase valor;
 non terminal NodoNumero expresion;
 non terminal NodoBase print;
 non terminal NodoBase printAnidado;
@@ -203,10 +203,23 @@ declaracion ::=
 ;
 
 asignacion ::=
-	IDENTIFICADOR:variable IGUAL expresion:ex {:
+	IDENTIFICADOR:variable IGUAL valor:valor {:
 		if(debug)
 			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
-		RESULT = new NodoAsignacion(variable, ex);
+		RESULT = new NodoAsignacion(variable, valor);
+	:}
+;
+
+valor ::=
+	expresion:ex {:
+		if(debug)
+			System.out.println("\t Regla: valor ::= expresion ");
+		RESULT = ex;
+	:}
+	| IDENTIFICADOR:variable {:
+		if(debug)
+			System.out.println("\t Regla: valor ::= IDENTIFICADOR ");
+		RESULT = new NodoIdentificador(variable);
 	:}
 ;
 

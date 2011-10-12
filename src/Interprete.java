@@ -137,8 +137,16 @@ public class Interprete {
 
     private void nodoAsignacion(NodoAsignacion nodoAsignacion) {
         //TODO validar tipo de dato
-        IdValor iv = variables.get(nodoAsignacion.getIdentificador());
-        iv.getNodoNumero().setValor(nodoAsignacion.getNodoNumero().getValor());
+        IdValor ladoDerecho = variables.get(nodoAsignacion.getIdentificador());
+        if (nodoAsignacion.getValor() instanceof NodoNumero) {
+            NodoNumero num = (NodoNumero) nodoAsignacion.getValor();
+            ladoDerecho.getNodoNumero().setValor(num.getValor());
+        } else if (nodoAsignacion.getValor() instanceof NodoIdentificador) {
+            NodoIdentificador id = (NodoIdentificador) nodoAsignacion.getValor();
+            IdValor ladoIzquierdo = variables.get(id.getNombre());
+            ladoDerecho.getNodoNumero().setValor(ladoIzquierdo.getNodoNumero().getValor().doubleValue());
+        }
+
     }
 
     private void nodoIf(NodoIf nodoIf) {

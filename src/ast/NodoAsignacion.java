@@ -3,21 +3,21 @@ package ast;
 public class NodoAsignacion extends NodoBase {
 
     private String variable;
-    private NodoNumero nodoNumero;
+    private NodoBase valor;
 
     public NodoAsignacion() {
     }
 
-    public NodoAsignacion(String variable, NodoNumero nodoNumero) {
+    public NodoAsignacion(String variable, NodoBase valor) {
         this.variable = variable;
-        this.nodoNumero = nodoNumero;
+        this.valor = valor;
     }
 
     public String getIdentificador() {
         return variable;
     }
 
-    public NodoNumero getNodoNumero() {
-        return nodoNumero;
+    public NodoBase getValor() {
+        return valor;
     }
 }

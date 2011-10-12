@@ -224,13 +224,12 @@ cadena			= "\""[^;\n]*"\""
 {espacio} {
 	/*Salta espacios en blanco*/
 }
-"'".*{nuevalinea}? {
+"'"[^\n]* {
 	/*Salto comentarios*/
 	if(debug)
 		System.out.println("token COMENTARIO");
-	//return sf.newSymbol("COMENTARIO",Symbols.COMENTARIO);
 }
-"REM"{espacio}.*{nuevalinea}? {
+"REM"{espacio}[^\n]* {
 	/* salto comentarios */
 	if(debug)
 		System.out.println("token COMENTARIO");
