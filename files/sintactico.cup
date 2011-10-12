@@ -229,35 +229,35 @@ expresion ::=
 			System.out.println("\t Regla: expresion ::= NUMERO ");
 		RESULT = new NodoNumero(num);
 	:}
-	| expresion:E1 SUMA expresion:E2 {:
+	| expresion:e1 SUMA expresion:e2 {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= SUMA ");
-		//RESULT = new Integer(E1.intValue() + E2.intValue());
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.SUMA);
 	:}
-	| expresion:EE1 REST expresion:EE2 {:
+	| expresion:e1 REST expresion:e2 {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= REST ");
-		//RESULT = new Integer(EE1.intValue() - EE2.intValue())
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.REST);
 	:}
-	| expresion:EA1 MULT expresion:EA2 {:
+	| expresion:e1 MULT expresion:e2 {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= MULT ");
-		//RESULT = new Integer(EA1.intValue() * EA2.intValue());
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.MULT);
 	:}
-	| expresion:EC1 DIVI expresion:EC2 {:
+	| expresion:e1 DIVI expresion:e2 {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= DIVI ");
-		//RESULT = new Integer(EC1.intValue() / EC2.intValue());
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.DIVI);
 	:}
-	| expresion:ED1 POTE expresion:ED2 {:
+	| expresion:e1 POTE expresion:e2 {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= POTE ");
-		//RESULT = new Integer( (int) Math.pow(ED1.intValue(),ED2.intValue())); 
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.POTE);
 	:}
-	| LPARENT expresion:EXW RPARENT {:
+	| LPARENT expresion:e1 RPARENT {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= PARENTESIS ");
-		//RESULT = new Integer(EXW.intValue());
+		RESULT = new NodoOperacionMat(e1,null, Tipo.OpMat.POTE);
 	:}
 ;
 

@@ -1,12 +1,5 @@
 DIM I AS INTEGER
-DIM J AS INTEGER
-I=1
-J=10
+I=2- 9+1
 PRINT I
-PRINT J
-I=J
-PRINT I
-PRINT J
-J=20
-PRINT I
-PRINT J
+Operaciones Matematicas Beta 1.
+Ejm: 

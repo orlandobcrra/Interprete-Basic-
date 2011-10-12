@@ -146,7 +146,6 @@ public class Interprete {
             IdValor ladoIzquierdo = variables.get(id.getNombre());
             ladoDerecho.getNodoNumero().setValor(ladoIzquierdo.getNodoNumero().getValor().doubleValue());
         }
-
     }
 
     private void nodoIf(NodoIf nodoIf) {

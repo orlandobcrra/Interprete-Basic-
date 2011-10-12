@@ -27,4 +27,24 @@ public class NodoOperacionMat extends NodoNumero {
     public Tipo.OpMat getTipo() {
         return tipo;
     }
+
+    public Double getValor() {
+        switch (tipo) {
+            case SUMA: {
+                return opDerecho.getValor() + opIzquierdo.getValor();
+            }
+            case REST: {
+                return opDerecho.getValor() - opIzquierdo.getValor();
+            }
+            case MULT: {
+                return opDerecho.getValor() * opIzquierdo.getValor();
+            }
+            case DIVI: {
+                return opDerecho.getValor() / opIzquierdo.getValor();
+            }
+            default:
+                return 0.0;
+        }
+
+    }
 }
