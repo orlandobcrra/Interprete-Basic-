@@ -1,0 +1,362 @@
+import java_cup.runtime.*;
+import ast.*;
+
+action code {:
+	private NodoBase root=null;
+	private boolean debug=true;	
+	private int lineaNum=0;
+
+	public NodoBase getRoot(){
+		return root;
+	}
+:}
+
+
+/* Simbolos Terminales */
+terminal COMENTARIO;
+terminal LINEANUEVA;
+terminal END;
+terminal DIM;
+terminal String IDENTIFICADOR;
+terminal AS;
+terminal INTEGER;
+terminal FLOAT;
+terminal STRING;
+terminal COMA;
+terminal IGUAL;
+terminal String NUMERO;
+terminal SUMA;
+terminal REST;
+terminal MULT;
+terminal DIVI;
+terminal POTE;
+terminal LPARENT;
+terminal RPARENT;
+terminal PRINT;
+terminal CADENA;
+terminal PTCO;
+terminal INPUT;
+terminal FOR;
+terminal TO;
+terminal STEP;
+terminal NEXT;
+terminal MENORIGUAL;
+terminal MENOR;
+terminal MAYORIGUAL;
+terminal MAYOR;
+terminal DIFERENTE;
+terminal AND;
+terminal OR;
+terminal NO;
+terminal IF;
+terminal THEN;
+terminal ELSE;
+terminal ENDIF;
+
+/* Simbolos No Terminales */
+non terminal NodoBase programa;
+non terminal NodoBase seq_sent;
+non terminal NodoBase sent;
+non terminal NodoBase declaraciones;
+non terminal NodoBase declaracion;
+non terminal NodoBase asignacion;
+non terminal NodoNumero expresion;
+non terminal NodoBase print;
+non terminal NodoBase printAnidado;
+non terminal NodoBase printValor;
+non terminal NodoBase for;
+non terminal NodoOperacionBool condicion;
+non terminal NodoBase if;
+
+precedence left REST, SUMA;
+precedence left MULT, DIVI;
+precedence right POTE;
+
+
+/* REGLAS GRAMATICALES */
+programa ::=
+	seq_sent:prog {:
+		if(debug)
+			System.out.println("\t Regla: programa ::= seq_sent");
+		root = prog;
+    :}
+	| seq_sent:prog LINEANUEVA {:
+		if(debug)
+			System.out.println("\t Regla: programa ::= seq_sent LINEANUEVA");
+		root = prog;
+    :}
+;
+
+seq_sent ::=
+	seq_sent:sentencias LINEANUEVA sent:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: seq_sent ::= Varias Sentencias");
+		NodoBase hijoActual = sentencias;
+		if(hijoActual !=null){
+			while(hijoActual.TieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(sentencia);
+			RESULT = sentencias;
+		}else{
+			RESULT = sentencia;
+		}
+	:}
+	| sent:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: seq_sent ::= Una Sentencia");
+		RESULT = sentencia;
+	:}
+;
+
+sent ::=
+	print:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= print");
+		RESULT = sentencia;
+	:}
+	| DIM declaraciones:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= declaracion");
+		RESULT = sentencia;                              
+	:}
+	| asignacion:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= asignacion");
+		RESULT=sentencia;                              
+	:}
+	| for:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= for");
+		RESULT=sentencia;                              
+	:}
+	| if:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= if");
+		RESULT=sentencia;                              
+	:}
+	| END {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= END");
+		RESULT = null;
+	:}
+	| INPUT IDENTIFICADOR:nombre {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
+		RESULT = new NodoLeer(nombre);
+	:}
+	| LINEANUEVA {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= LINEANUEVA");
+	:}
+	| error {:
+		if(debug)
+			System.out.println("\t Regla stmt ::= error"); 
+		System.err.println("Error: sent ::= NO ENCONTRADA");
+		RESULT = null;
+	:}	
+;
+
+declaraciones ::=
+	declaraciones COMA declaracion {:
+		if(debug)
+			System.out.println("\t Regla: declaraciones ::= declaraciones COMA declaracion");
+		RESULT=null;
+		//TODO lo del hermano
+	:}
+	| declaracion:declaracion {:
+		RESULT = declaracion;                               
+	:}
+;
+
+declaracion ::=
+	IDENTIFICADOR:nombre AS INTEGER {:
+		if(debug)
+			System.out.println("\t Regla: declaracion ::= IDENTIFICADOR AS INTEGER");
+		if(nombre!=null){
+			RESULT = new NodoDeclaracion(nombre.toString(),Tipo.Variable.INTEGER);		
+		}else{
+			RESULT = null;
+			System.err.println("ERROR: declaracion ::= DIM (SIN NOMBRE DE VARIABLE)");
+		}                                
+	:}
+	| IDENTIFICADOR:nombre AS FLOAT {:
+		if(debug)
+			System.out.println("\t Regla: declaracion ::= IDENTIFICADOR AS FLOAT");
+		if(nombre!=null){
+			RESULT = new NodoDeclaracion(nombre.toString(),Tipo.Variable.FLOAT);		
+		}else{
+			RESULT = null;
+			System.err.println("ERROR: declaracion ::= DIM (SIN NOMBRE DE VARIABLE)");
+		}                                
+	:}
+	| IDENTIFICADOR:nombre AS STRING {:
+		if(debug)
+			System.out.println("\t Regla: declaracion ::= IDENTIFICADOR AS STRING");
+		if(nombre!=null){
+			RESULT = new NodoDeclaracion(nombre.toString(),Tipo.Variable.STRING);		
+		}else{
+			RESULT = null;
+			System.err.println("ERROR: declaracion ::= DIM (SIN NOMBRE DE VARIABLE)");
+		}                                
+	:}
+;
+
+asignacion ::=
+	IDENTIFICADOR:variable IGUAL expresion:ex {:
+		if(debug)
+			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
+		RESULT = new NodoAsignacion(variable, ex);
+	:}
+;
+
+expresion ::= 
+	NUMERO:num {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= NUMERO ");
+		RESULT = new NodoNumero(num);
+	:}
+	| expresion:E1 SUMA expresion:E2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= SUMA ");
+		//RESULT = new Integer(E1.intValue() + E2.intValue());
+	:}
+	| expresion:EE1 REST expresion:EE2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= REST ");
+		//RESULT = new Integer(EE1.intValue() - EE2.intValue())
+	:}
+	| expresion:EA1 MULT expresion:EA2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= MULT ");
+		//RESULT = new Integer(EA1.intValue() * EA2.intValue());
+	:}
+	| expresion:EC1 DIVI expresion:EC2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= DIVI ");
+		//RESULT = new Integer(EC1.intValue() / EC2.intValue());
+	:}
+	| expresion:ED1 POTE expresion:ED2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= POTE ");
+		//RESULT = new Integer( (int) Math.pow(ED1.intValue(),ED2.intValue())); 
+	:}
+	| LPARENT expresion:EXW RPARENT {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= PARENTESIS ");
+		//RESULT = new Integer(EXW.intValue());
+	:}
+;
+
+print ::=
+	PRINT printAnidado:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: print ::= PRINT printAnidado");
+		RESULT = new NodoEscribir(sentencia);
+	:}
+	| PRINT	printAnidado:sentencia PTCO {: 
+		if(debug)
+			System.out.println("\t Regla: printAnidado ::= printAnidado PTCO");
+		NodoEscribir nodoEscribir= new NodoEscribir(sentencia,false);
+		RESULT = nodoEscribir;
+	:}	
+;
+		
+printAnidado ::=
+	printAnidado:valores PTCO printValor:valor {:
+		if(debug)
+			System.out.println("\t Regla: printAnidado ::= printAnidado PTCO printValor");
+		NodoBase hijoActual = valores;
+		if(hijoActual !=null){
+			while(hijoActual.TieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(valor);
+			RESULT = valores;
+		}else{
+			RESULT = valor;
+		}
+	:}			
+	| printValor:valor {: 
+		if(debug)
+			System.out.println("\t Regla: printAnidado ::= printValor");
+		RESULT = valor;
+	:}		
+;
+
+printValor ::=
+	CADENA:cadena {:
+		if(debug)
+			System.out.println("\t Regla: printValor ::= CADENA");
+		if(cadena!=null){
+			RESULT = new NodoCadena(cadena.toString());		
+		}else{
+			RESULT = null;
+			System.err.println("Error: printValor ::= SIN CADENA");
+		}
+	:}
+	| expresion:ex {:
+		if(debug)
+			System.out.println("\t Regla: printValor ::= expresion");
+		RESULT = ex;
+	:}
+	| IDENTIFICADOR:variable {:
+		if(debug)
+			System.out.println("\t Regla: printValor ::= IDENTIFICADOR");
+		RESULT = new NodoIdentificador(variable);
+	:}
+;
+
+for ::=
+	FOR IDENTIFICADOR:variable IGUAL expresion:desde TO expresion:hasta LINEANUEVA seq_sent:cuerpo LINEANUEVA NEXT IDENTIFICADOR:variable2 {:
+		if(debug)
+			System.out.println("\t Regla: for ::= Todo el FOR");
+		RESULT = new NodoFor(variable, desde.getValor().intValue(), hasta.getValor().intValue(), cuerpo, variable2);
+	:}
+	| FOR IDENTIFICADOR:variable IGUAL expresion:desde TO expresion:hasta STEP expresion:step LINEANUEVA seq_sent:cuerpo LINEANUEVA NEXT IDENTIFICADOR:variable2 {:
+		if(debug)
+			System.out.println("\t Regla: for ::= Todo el FOR");
+		RESULT = new NodoFor(variable, desde.getValor().intValue(), hasta.getValor().intValue(), cuerpo, variable2, step.getValor().intValue());
+	:}
+;
+
+condicion ::=
+	expresion:e1 IGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= IGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.IGUAL);
+	:}
+	| expresion:e1 MENOR expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MENOR");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENOR);
+	:}
+	| expresion:e1 MENORIGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MENORIGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENORIGUAL);
+	:}
+	| expresion:e1 MAYOR expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MAYOR");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYOR);
+	:}
+	| expresion:e1 MAYORIGUAL expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= MAYORIGUAL");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYORIGUAL);
+	:}
+	| expresion:e1 DIFERENTE expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: condicion ::= DIFERENTE");
+		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.DIFERENTE);
+	:}
+;
+
+if ::=
+	IF condicion:bool THEN LINEANUEVA seq_sent:then LINEANUEVA ENDIF {:
+		if(debug)
+			System.out.println("\t Regla: if ::= IF SOLO");
+		RESULT = new NodoIf(bool, then);
+	:}
+;
