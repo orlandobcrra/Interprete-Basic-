@@ -254,10 +254,10 @@ expresion ::=
 			System.out.println("\t Regla: expresion ::= POTE ");
 		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.POTE);
 	:}
-	| LPARENT expresion:e1 RPARENT {:
+	| LPARENT expresion:e RPARENT {:
 		if(debug)
 			System.out.println("\t Regla: expresion ::= PARENTESIS ");
-		RESULT = new NodoOperacionMat(e1,null, Tipo.OpMat.POTE);
+		RESULT = e;
 	:}
 ;
 

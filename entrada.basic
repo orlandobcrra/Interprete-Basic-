@@ -1,5 +1,3 @@
 DIM I AS INTEGER
-I=2- 9+1
+I=(1+3)*2
 PRINT I
-Operaciones Matematicas Beta 1.
-Ejm: 

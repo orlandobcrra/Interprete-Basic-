@@ -42,6 +42,9 @@ public class NodoOperacionMat extends NodoNumero {
             case DIVI: {
                 return opDerecho.getValor() / opIzquierdo.getValor();
             }
+            case POTE: {
+                return Math.pow(opDerecho.getValor(), opIzquierdo.getValor());
+            }
             default:
                 return 0.0;
         }
