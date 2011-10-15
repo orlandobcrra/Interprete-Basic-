@@ -29,8 +29,11 @@ terminal REST;
 terminal MULT;
 terminal DIVI;
 terminal POTE;
+terminal MOD;
 terminal LPARENT;
 terminal RPARENT;
+terminal LCORCHE;
+terminal RCORCHE;
 terminal SIGNO;
 terminal PRINT;
 terminal String CADENA;
@@ -54,6 +57,9 @@ terminal ELSE;
 terminal ENDIF;
 terminal WHILE;
 terminal WEND;
+terminal DO;
+terminal LOOP;
+terminal UNTIL;
 
 /* Simbolos No Terminales */
 non terminal NodoBase programa;
@@ -70,10 +76,11 @@ non terminal NodoBase for;
 non terminal NodoBase condicion;
 non terminal NodoBase expresionBool;
 non terminal NodoBase if;
-non terminal NodoBase while;
+non terminal NodoWhile while;
+non terminal NodoBase do;
 
 precedence left REST, SUMA;
-precedence left MULT, DIVI;
+precedence left MULT, DIVI, MOD;
 precedence left SIGNO;
 precedence right POTE;
 precedence left AND, OR;
@@ -146,7 +153,12 @@ sent ::=
 		if(debug)
 			System.out.println("\t Regla: sent ::= while");
 		RESULT=sentencia;                              
-	:}	
+	:}
+	| do:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= do");
+		RESULT=sentencia;                              
+	:}
 	| END {:
 		if(debug)
 			System.out.println("\t Regla: sent ::= END");
@@ -257,6 +269,11 @@ expresion ::=
 		if(debug)
 			System.out.println("\t Regla: expresion ::= DIVI ");
 		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.DIVI);
+	:}
+	| expresion:e1 MOD expresion:e2 {:
+		if(debug)
+			System.out.println("\t Regla: expresion ::= MOD ");
+		RESULT = new NodoOperacionMat(e1,e2, Tipo.OpMat.MOD);
 	:}
 	| expresion:e1 POTE expresion:e2 {:
 		if(debug)
@@ -417,5 +434,13 @@ while ::=
 		if(debug)
 			System.out.println("\t Regla: if ::= IF SOLO");
 		RESULT = new NodoWhile(ex,cuerpo);
+	:}
+;
+
+do ::=
+	DO LINEANUEVA seq_sent:cuerpo LINEANUEVA LOOP UNTIL expresionBool:ex {:
+		if(debug)
+			System.out.println("\t Regla: if ::= IF SOLO");
+		RESULT = new NodoDo(ex,cuerpo);
 	:}
 ;

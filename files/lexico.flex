@@ -95,6 +95,11 @@ cadena			= "\""[^;\n]*"\""
 		System.out.println("token POTE");
 	return sf.newSymbol("POTE",Symbols.POTE);
 }
+"MOD" {
+	if(debug)
+		System.out.println("token MOD");
+	return sf.newSymbol("MOD",Symbols.MOD);
+}
 "(" {
 	if(debug)
 		System.out.println("token LPARENT");
@@ -104,7 +109,17 @@ cadena			= "\""[^;\n]*"\""
 	if(debug)
 		System.out.println("token RPARENT");
 	return sf.newSymbol("RPARENT",Symbols.RPARENT);
-}					
+}
+"[" {
+	if(debug)
+		System.out.println("token LCORCHE");
+	return sf.newSymbol("LCORCHE",Symbols.LCORCHE);
+}
+"]" {
+	if(debug)
+		System.out.println("token RCORCHE");
+	return sf.newSymbol("RCORCHE",Symbols.RCORCHE);
+}				
 "PRINT" {
 	if(debug)
 		System.out.println("token PRINT");

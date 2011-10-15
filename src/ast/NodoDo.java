@@ -1,14 +1,16 @@
 package ast;
 
-public class NodoWhile extends NodoBase{
+import ast.NodoBase;
+
+public class NodoDo extends NodoBase {
 
     private NodoBase condicion;
     private NodoBase cuerpo;
 
-    public NodoWhile() {
+    public NodoDo() {
     }
 
-    public NodoWhile(NodoBase condicion, NodoBase cuerpo) {
+    public NodoDo(NodoBase condicion, NodoBase cuerpo) {
         this.condicion = condicion;
         this.cuerpo = cuerpo;
     }

@@ -4,7 +4,7 @@ package ast;
  *
  * @author Personal
  */
-public class Tipo {
+public interface Tipo {
 
     public static enum Variable {
 
@@ -23,6 +23,6 @@ public class Tipo {
 
     public enum OpMat {
 
-        SUMA, REST, MULT, DIVI, POTE
+        SUMA, REST, MULT, DIVI, POTE, MOD
     }
 }

@@ -8,6 +8,7 @@ import ast.NodoFor;
 import ast.NodoDeclaracion;
 import ast.NodoLeer;
 import ast.IdValor;
+import ast.NodoDo;
 import ast.NodoIdentificador;
 import ast.NodoIf;
 import ast.NodoOperacionBool;
@@ -81,6 +82,8 @@ public class Interprete {
                 nodoIf((NodoIf) nodoActual);
             } else if (nodoActual instanceof NodoWhile) {
                 nodoWhile((NodoWhile) nodoActual);
+            } else if (nodoActual instanceof NodoDo) {
+                nodoDo((NodoDo) nodoActual);
             }
             nodoActual = nodoActual.getHermanoDerecha();
         }
@@ -194,10 +197,17 @@ public class Interprete {
     private void nodoWhile(NodoWhile nodoWhile) {
         boolean b = getValorBool(nodoWhile.getCondicion());
         while (b) {
-
             interpretarNodo(nodoWhile.getCuerpo());
             b = getValorBool(nodoWhile.getCondicion());
         }
+    }
+
+    private void nodoDo(NodoDo nododo) {
+        boolean b = false;
+        do {
+            interpretarNodo(nododo.getCuerpo());
+            b = getValorBool(nododo.getCondicion());
+        } while (!b);
     }
 
     private boolean getValorBool(NodoBase base) {
@@ -289,6 +299,9 @@ public class Interprete {
             }
             case DIVI: {
                 return derecho / izquierdo;
+            }
+            case MOD: {
+                return derecho % izquierdo;
             }
             case POTE: {
                 return Math.pow(derecho, izquierdo);
