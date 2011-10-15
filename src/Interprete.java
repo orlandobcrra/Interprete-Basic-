@@ -129,6 +129,18 @@ public class Interprete {
                 } else {
                     System.out.print(getValorNumerico(valor));
                 }
+            } else if (valor instanceof NodoIdentificadorVector) {
+                NodoIdentificadorVector id = (NodoIdentificadorVector) valor;
+                IdValorVector iv = variablesVector.get(id.getNombre());
+                int p = (int) getValorNumerico(id.getEx());
+                if (iv.getTipo().equals(Tipo.Variable.STRING)) {
+                    NodoCadena nodoCadena = (NodoCadena) iv.getValor(p);
+                    String cadena = nodoCadena.getCadena();
+                    cadena = cadena.substring(1, cadena.length() - 1);
+                    System.out.print(cadena);
+                } else {
+                    System.out.print(getValorNumerico(valor));
+                }
             } else {
                 System.out.print(getValorNumerico(valor));
             }
@@ -306,7 +318,6 @@ public class Interprete {
             IdValor iv = variables.get(id.getNombre());
             if (!iv.getTipo().equals(Tipo.Variable.STRING)) {
                 return getValorNumerico(iv.getValor());
-                //return ((NodoNumero) iv.getValor()).getValor();
             }
         } else if (base instanceof NodoIdentificadorVector) {
             NodoIdentificadorVector id = (NodoIdentificadorVector) base;
