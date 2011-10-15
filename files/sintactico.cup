@@ -52,6 +52,8 @@ terminal IF;
 terminal THEN;
 terminal ELSE;
 terminal ENDIF;
+terminal WHILE;
+terminal WEND;
 
 /* Simbolos No Terminales */
 non terminal NodoBase programa;
@@ -68,6 +70,7 @@ non terminal NodoBase for;
 non terminal NodoBase condicion;
 non terminal NodoBase expresionBool;
 non terminal NodoBase if;
+non terminal NodoBase while;
 
 precedence left REST, SUMA;
 precedence left MULT, DIVI;
@@ -139,6 +142,11 @@ sent ::=
 			System.out.println("\t Regla: sent ::= if");
 		RESULT=sentencia;                              
 	:}
+	| while:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= while");
+		RESULT=sentencia;                              
+	:}	
 	| END {:
 		if(debug)
 			System.out.println("\t Regla: sent ::= END");
@@ -401,5 +409,13 @@ if ::=
 		if(debug)
 			System.out.println("\t Regla: if ::= IF CON ELSE");
 		RESULT = new NodoIf(ex, then, else1);
+	:}
+;
+
+while ::=
+	WHILE expresionBool:ex LINEANUEVA seq_sent:cuerpo LINEANUEVA WEND {:
+		if(debug)
+			System.out.println("\t Regla: if ::= IF SOLO");
+		RESULT = new NodoWhile(ex,cuerpo);
 	:}
 ;

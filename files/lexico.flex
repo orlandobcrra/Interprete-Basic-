@@ -210,6 +210,21 @@ cadena			= "\""[^;\n]*"\""
 		System.out.println("token WEND");
 	return sf.newSymbol("WEND",Symbols.WEND);
 }
+"DO" {
+	if(debug)
+		System.out.println("token DO");
+	return sf.newSymbol("DO",Symbols.DO);
+}
+"LOOP" {
+	if(debug)
+		System.out.println("token LOOP");
+	return sf.newSymbol("LOOP",Symbols.LOOP);
+}
+"UNTIL" {
+	if(debug)
+		System.out.println("token UNTIL");
+	return sf.newSymbol("UNTIL",Symbols.UNTIL);
+}
 {identificador} {
 	if(debug)
 		System.out.println("token IDENTIFICADOR");

@@ -15,6 +15,7 @@ import ast.NodoOperacionBoolLogica;
 import ast.NodoOperacionBoolUnaria;
 import ast.NodoOperacionMat;
 import ast.NodoOperacionMatUnaria;
+import ast.NodoWhile;
 import ast.Tipo;
 import ast.Tipo.OpMat;
 import java.io.IOException;
@@ -47,13 +48,13 @@ public class Interprete {
         System.out.println("");
         System.out.println("-----------------------------------");
         System.out.println("");
-        NodoBase nodoActual = root;
-        if (nodoActual != null) {
-            do {
-                interpretarNodo(nodoActual);
-                nodoActual = nodoActual.getHermanoDerecha();
-            } while (nodoActual != null);
-        }
+        //NodoBase nodoActual = root;
+        //if (nodoActual != null) {
+        //do {
+        interpretarNodo(root);
+        //      nodoActual = nodoActual.getHermanoDerecha();
+        //    } while (nodoActual != null);
+
         System.out.println("");
         System.out.println("-----------------------------------");
     }
@@ -61,21 +62,27 @@ public class Interprete {
     /**
      * Realiza la interpretacion de un nodo especifico.
      * 
-     * @param nodo el nodo
+     * @param nodoActual el nodo
      */
     private void interpretarNodo(NodoBase nodo) {
-        if (nodo instanceof NodoEscribir) {
-            nodoEscribir((NodoEscribir) nodo);
-        } else if (nodo instanceof NodoLeer) {
-            nodoLeer((NodoLeer) nodo);
-        } else if (nodo instanceof NodoFor) {
-            nodoFor((NodoFor) nodo);
-        } else if (nodo instanceof NodoDeclaracion) {
-            nodoDeclaracion((NodoDeclaracion) nodo);
-        } else if (nodo instanceof NodoAsignacion) {
-            nodoAsignacion((NodoAsignacion) nodo);
-        } else if (nodo instanceof NodoIf) {
-            nodoIf((NodoIf) nodo);
+        NodoBase nodoActual = nodo;
+        while (nodoActual != null) {
+            if (nodoActual instanceof NodoEscribir) {
+                nodoEscribir((NodoEscribir) nodoActual);
+            } else if (nodoActual instanceof NodoLeer) {
+                nodoLeer((NodoLeer) nodoActual);
+            } else if (nodoActual instanceof NodoFor) {
+                nodoFor((NodoFor) nodoActual);
+            } else if (nodoActual instanceof NodoDeclaracion) {
+                nodoDeclaracion((NodoDeclaracion) nodoActual);
+            } else if (nodoActual instanceof NodoAsignacion) {
+                nodoAsignacion((NodoAsignacion) nodoActual);
+            } else if (nodoActual instanceof NodoIf) {
+                nodoIf((NodoIf) nodoActual);
+            } else if (nodoActual instanceof NodoWhile) {
+                nodoWhile((NodoWhile) nodoActual);
+            }
+            nodoActual = nodoActual.getHermanoDerecha();
         }
     }
 
@@ -157,7 +164,16 @@ public class Interprete {
         //TODO validar tipo de dato
         //TODO si es tipo integer cast to (int)
         IdValor ladoDerecho = variables.get(nodoAsignacion.getIdentificador());
-        ladoDerecho.setValor(nodoAsignacion.getValor());
+        if (!ladoDerecho.getId().getTipo().equals(Tipo.Variable.STRING)) {
+            NodoNumero nodoNumero = (NodoNumero) ladoDerecho.getValor();
+            if (nodoNumero == null) {
+                nodoNumero = new NodoNumero();
+                ladoDerecho.setValor(nodoNumero);
+            }
+            nodoNumero.setValor(getValorNumerico(nodoAsignacion.getValor()));
+        } else {
+            ladoDerecho.setValor(nodoAsignacion.getValor());
+        }
 //        if (!ladoDerecho.getId().getTipo().equals(Tipo.Variable.STRING)) {
 //            NodoNumero num = (NodoNumero) ladoDerecho.getValor();
 //            num.setValor(getValorNumerico(nodoAsignacion.getValor()));
@@ -172,6 +188,15 @@ public class Interprete {
             interpretarNodo(nodoIf.getParteThen());
         } else {
             interpretarNodo(nodoIf.getParteElse());
+        }
+    }
+
+    private void nodoWhile(NodoWhile nodoWhile) {
+        boolean b = getValorBool(nodoWhile.getCondicion());
+        while (b) {
+
+            interpretarNodo(nodoWhile.getCuerpo());
+            b = getValorBool(nodoWhile.getCondicion());
         }
     }
 
