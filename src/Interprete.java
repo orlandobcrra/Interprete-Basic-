@@ -12,6 +12,7 @@ import ast.NodoIdentificador;
 import ast.NodoIf;
 import ast.NodoOperacionBool;
 import ast.NodoOperacionBoolLogica;
+import ast.NodoOperacionBoolUnaria;
 import ast.NodoOperacionMat;
 import ast.NodoOperacionMatUnaria;
 import ast.Tipo;
@@ -139,7 +140,11 @@ public class Interprete {
         int step = (int) getValorNumerico(nodoFor.getStep());
         for (int i = desde; i != hasta; i += step) {
             IdValor iv = variables.get(nodoFor.getVariable());
-            ((NodoNumero) iv.getValor()).setValor((double) i);
+            if (iv.getValor() instanceof NodoNumero) {
+                ((NodoNumero) iv.getValor()).setValor((double) i);
+            } else {
+                iv.setValor(new NodoNumero(i));
+            }
             interpretarNodo(nodoFor.getCuerpo());
         }
     }
@@ -162,12 +167,7 @@ public class Interprete {
     }
 
     private void nodoIf(NodoIf nodoIf) {
-        boolean b = false;
-        if (nodoIf.getCondicion() instanceof NodoOperacionBool) {
-            b = nodoOperacionBool((NodoOperacionBool) nodoIf.getCondicion());
-        } else if (nodoIf.getCondicion() instanceof NodoOperacionBoolLogica) {
-           b=nodoOperacionBoolLogica((NodoOperacionBoolLogica) nodoIf.getCondicion());
-        }
+        boolean b = getValorBool(nodoIf.getCondicion());
         if (b) {
             interpretarNodo(nodoIf.getParteThen());
         } else {
@@ -175,22 +175,33 @@ public class Interprete {
         }
     }
 
-    private boolean nodoOperacionBoolLogica(NodoOperacionBoolLogica bool) {
-        boolean derecho = nodoOperacionBool((NodoOperacionBool) bool.getOpDerecho());
-        boolean izquierdo = nodoOperacionBool((NodoOperacionBool) bool.getOpIzquierdo());
+    private boolean getValorBool(NodoBase base) {
+        if (base instanceof NodoOperacionBoolLogica) {
+            return getValorBool((NodoOperacionBoolLogica) base);
+        } else if (base instanceof NodoOperacionBool) {
+            return getValorBool((NodoOperacionBool) base);
+        } else if (base instanceof NodoOperacionBoolUnaria) {
+            return !getValorBool(((NodoOperacionBoolUnaria) base).getValor());
+        }
+        throw new RuntimeException("Tratando de optener valor bool de un nodo que no lo contiene");
+    }
+
+    private boolean getValorBool(NodoOperacionBoolLogica bool) {
+        boolean derecho = getValorBool(bool.getOpDerecho());
+        boolean izquierdo = getValorBool(bool.getOpIzquierdo());
         switch (bool.getTipo()) {
             case AND: {
                 return derecho && izquierdo;
             }
             case OR: {
-                return derecho && izquierdo;
+                return derecho || izquierdo;
             }
             default:
                 return false;
         }
     }
 
-    private boolean nodoOperacionBool(NodoOperacionBool bool) {
+    private boolean getValorBool(NodoOperacionBool bool) {
         double derecho = getValorNumerico(bool.getOpDerecho());
         double izquierdo = getValorNumerico(bool.getOpIzquierdo());
         switch (bool.getTipo()) {

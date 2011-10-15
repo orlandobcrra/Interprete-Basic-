@@ -7,6 +7,10 @@ public class NodoNumero extends NodoBase {
     public NodoNumero() {
     }
 
+    public NodoNumero(double d) {
+        valor = d;
+    }
+
     public NodoNumero(String s) {
         this.valor = Double.parseDouble(s);
     }

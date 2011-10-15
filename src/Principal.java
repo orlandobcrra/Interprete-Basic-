@@ -6,7 +6,11 @@ import java_cup.runtime.SymbolFactory;
 
 /**
  *
- * @author Personal
+ * @author Orlando Becerra
+ * @author Jesus Colmenares
+ * @author Anthony Crespo
+ * @author Danny Sanchez
+ * @version 10/10/2011
  */
 public class Principal {
 

@@ -47,7 +47,7 @@ terminal MAYOR;
 terminal DIFERENTE;
 terminal AND;
 terminal OR;
-terminal NO;
+terminal NOT;
 terminal IF;
 terminal THEN;
 terminal ELSE;
@@ -74,7 +74,7 @@ precedence left MULT, DIVI;
 precedence left SIGNO;
 precedence right POTE;
 precedence left AND, OR;
-precedence right NO;
+precedence right NOT;
 
 
 /* REGLAS GRAMATICALES */
@@ -97,7 +97,7 @@ seq_sent ::=
 			System.out.println("\t Regla: seq_sent ::= Varias Sentencias");
 		NodoBase hijoActual = sentencias;
 		if(hijoActual !=null){
-			while(hijoActual.TieneHermano()){
+			while(hijoActual.tieneHermano()){
 				hijoActual = hijoActual.getHermanoDerecha();
 			}
 			hijoActual.setHermanoDerecha(sentencia);
@@ -288,7 +288,7 @@ printAnidado ::=
 			System.out.println("\t Regla: printAnidado ::= printAnidado PTCO printValor");
 		NodoBase hijoActual = valores;
 		if(hijoActual !=null){
-			while(hijoActual.TieneHermano()){
+			while(hijoActual.tieneHermano()){
 				hijoActual = hijoActual.getHermanoDerecha();
 			}
 			hijoActual.setHermanoDerecha(valor);
@@ -331,29 +331,29 @@ for ::=
 ;
 
 expresionBool ::=
-	condicion:c1 AND condicion:c2 {:
-		if(debug)
-			System.out.println("\t Regla: expresionBool ::= expresionBool AND condicion ");
-		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.AND);
-	:}
-	| condicion:c1 OR condicion:c2 {:
-		if(debug)
-			System.out.println("\t Regla: expresionBool ::= expresionBool OR condicion");
-		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.OR);
-	:}
-	| NO expresionBool:ex {:
-		if(debug)
-			System.out.println("\t Regla: expresionBool ::= NO expresionBool");
-		RESULT = new NodoOperacionBoolUnaria(ex);
-	:}
-	| condicion:c {:
+	condicion:c {:
 		if(debug)
 			System.out.println("\t Regla: expresionBool ::= condicion");
 		RESULT = c;
 	:}
+	| expresionBool:c1 AND expresionBool:c2 {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= expresionBool AND expresionBool ");
+		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.AND);
+	:}
+	| expresionBool:c1 OR expresionBool:c2 {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= expresionBool OR expresionBool ");
+		RESULT = new NodoOperacionBoolLogica(c1,c2,Tipo.OpBoolLogica.OR);
+	:}
+	| NOT expresionBool:ex {:
+		if(debug)
+			System.out.println("\t Regla: expresionBool ::= NOT expresionBool");
+		RESULT = new NodoOperacionBoolUnaria(ex);
+	:}
 	| LPARENT expresionBool:ex RPARENT {:
 		if(debug)
-			System.out.println("\t Regla: expresion ::= PARENTESIS ");
+			System.out.println("\t Regla: expresionBool ::= PARENTESIS ");
 		RESULT = ex;
 	:}
 ;
@@ -396,5 +396,10 @@ if ::=
 		if(debug)
 			System.out.println("\t Regla: if ::= IF SOLO");
 		RESULT = new NodoIf(ex, then);
+	:}
+	| IF expresionBool:ex THEN LINEANUEVA seq_sent:then LINEANUEVA ELSE LINEANUEVA seq_sent:else1 LINEANUEVA ENDIF {:
+		if(debug)
+			System.out.println("\t Regla: if ::= IF CON ELSE");
+		RESULT = new NodoIf(ex, then, else1);
 	:}
 ;

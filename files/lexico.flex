@@ -175,10 +175,10 @@ cadena			= "\""[^;\n]*"\""
 		System.out.println("token OR");
 	return sf.newSymbol("OR",Symbols.OR);
 }
-"NO" {
+"NOT" {
 	if(debug)
-		System.out.println("token NO");
-	return sf.newSymbol("NO",Symbols.NO);
+		System.out.println("token NOT");
+	return sf.newSymbol("NOT",Symbols.NOT);
 }
 "IF" {
 	if(debug)
@@ -199,6 +199,16 @@ cadena			= "\""[^;\n]*"\""
 	if(debug)
 		System.out.println("token ENDIF");
 	return sf.newSymbol("ENDIF",Symbols.ENDIF);
+}
+"WHILE" {
+	if(debug)
+		System.out.println("token WHILE");
+	return sf.newSymbol("WHILE",Symbols.WHILE);
+}
+"WEND" {
+	if(debug)
+		System.out.println("token WEND");
+	return sf.newSymbol("WEND",Symbols.WEND);
 }
 {identificador} {
 	if(debug)
