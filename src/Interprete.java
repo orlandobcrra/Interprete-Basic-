@@ -8,8 +8,12 @@ import ast.NodoFor;
 import ast.NodoDeclaracion;
 import ast.NodoLeer;
 import ast.IdValor;
+import ast.IdValorVector;
+import ast.NodoAsignacionVector;
+import ast.NodoDeclaracionVector;
 import ast.NodoDo;
 import ast.NodoIdentificador;
+import ast.NodoIdentificadorVector;
 import ast.NodoIf;
 import ast.NodoOperacionBool;
 import ast.NodoOperacionBoolLogica;
@@ -34,6 +38,8 @@ public class Interprete {
     private NodoBase root;
     private HashMap<String, IdValor> variables =
             new HashMap<String, IdValor>();
+    private HashMap<String, IdValorVector> variablesVector =
+            new HashMap<String, IdValorVector>();
 
     /**
      * Crea una instancia de la clase Interprete partiendo del nodo raiz,
@@ -76,8 +82,12 @@ public class Interprete {
                 nodoFor((NodoFor) nodoActual);
             } else if (nodoActual instanceof NodoDeclaracion) {
                 nodoDeclaracion((NodoDeclaracion) nodoActual);
+            } else if (nodoActual instanceof NodoDeclaracionVector) {
+                nodoDeclaracionVector((NodoDeclaracionVector) nodoActual);
             } else if (nodoActual instanceof NodoAsignacion) {
                 nodoAsignacion((NodoAsignacion) nodoActual);
+            } else if (nodoActual instanceof NodoAsignacionVector) {
+                nodoAsignacionVector((NodoAsignacionVector) nodoActual);
             } else if (nodoActual instanceof NodoIf) {
                 nodoIf((NodoIf) nodoActual);
             } else if (nodoActual instanceof NodoWhile) {
@@ -111,7 +121,7 @@ public class Interprete {
             } else if (valor instanceof NodoIdentificador) {
                 NodoIdentificador id = (NodoIdentificador) valor;
                 IdValor iv = variables.get(id.getNombre());
-                if (iv.getId().getTipo().equals(Tipo.Variable.STRING)) {
+                if (iv.getTipo().equals(Tipo.Variable.STRING)) {
                     NodoCadena nodoCadena = (NodoCadena) iv.getValor();
                     String cadena = nodoCadena.getCadena();
                     cadena = cadena.substring(1, cadena.length() - 1);
@@ -160,14 +170,19 @@ public class Interprete {
     }
 
     private void nodoDeclaracion(NodoDeclaracion nodoIdentificador) {
-        variables.put(nodoIdentificador.getNombre(), new IdValor(nodoIdentificador));
+        variables.put(nodoIdentificador.getNombre(), new IdValor(nodoIdentificador.getTipo()));
+    }
+
+    private void nodoDeclaracionVector(NodoDeclaracionVector nodoIdentificador) {
+        variablesVector.put(nodoIdentificador.getNombre(),
+                new IdValorVector((int) getValorNumerico(nodoIdentificador.getTam()), nodoIdentificador.getTipo()));
     }
 
     private void nodoAsignacion(NodoAsignacion nodoAsignacion) {
         //TODO validar tipo de dato
         //TODO si es tipo integer cast to (int)
         IdValor ladoDerecho = variables.get(nodoAsignacion.getIdentificador());
-        if (!ladoDerecho.getId().getTipo().equals(Tipo.Variable.STRING)) {
+        if (!ladoDerecho.getTipo().equals(Tipo.Variable.STRING)) {
             NodoNumero nodoNumero = (NodoNumero) ladoDerecho.getValor();
             if (nodoNumero == null) {
                 nodoNumero = new NodoNumero();
@@ -177,12 +192,23 @@ public class Interprete {
         } else {
             ladoDerecho.setValor(nodoAsignacion.getValor());
         }
-//        if (!ladoDerecho.getId().getTipo().equals(Tipo.Variable.STRING)) {
-//            NodoNumero num = (NodoNumero) ladoDerecho.getValor();
-//            num.setValor(getValorNumerico(nodoAsignacion.getValor()));
-//        } else {
-//            ladoDerecho.getValor().setValor(getValorNumerico(nodoAsignacion.getValor()));
-//        }
+    }
+
+    private void nodoAsignacionVector(NodoAsignacionVector nodoAsignacion) {
+        //TODO validar tipo de dato
+        //TODO si es tipo integer cast to (int)
+        IdValorVector ladoDerecho = variablesVector.get(nodoAsignacion.getIdentificador());
+        int p = (int) getValorNumerico(nodoAsignacion.getEx());
+        if (!ladoDerecho.getTipo().equals(Tipo.Variable.STRING)) {
+            NodoNumero nodoNumero = (NodoNumero) ladoDerecho.getValor(p);
+            if (nodoNumero == null) {
+                nodoNumero = new NodoNumero();
+                ladoDerecho.setValor(p, nodoNumero);
+            }
+            nodoNumero.setValor(getValorNumerico(nodoAsignacion.getValor()));
+        } else {
+            ladoDerecho.setValor(p, nodoAsignacion.getValor());
+        }
     }
 
     private void nodoIf(NodoIf nodoIf) {
@@ -278,8 +304,15 @@ public class Interprete {
         } else if (base instanceof NodoIdentificador) {
             NodoIdentificador id = (NodoIdentificador) base;
             IdValor iv = variables.get(id.getNombre());
-            if (!iv.getId().getTipo().equals(Tipo.Variable.STRING)) {
+            if (!iv.getTipo().equals(Tipo.Variable.STRING)) {
                 return getValorNumerico(iv.getValor());
+                //return ((NodoNumero) iv.getValor()).getValor();
+            }
+        } else if (base instanceof NodoIdentificadorVector) {
+            NodoIdentificadorVector id = (NodoIdentificadorVector) base;
+            IdValorVector iv = variablesVector.get(id.getNombre());
+            if (!iv.getTipo().equals(Tipo.Variable.STRING)) {
+                return getValorNumerico(iv.getValor((int) getValorNumerico(id.getEx())));
                 //return ((NodoNumero) iv.getValor()).getValor();
             }
         }

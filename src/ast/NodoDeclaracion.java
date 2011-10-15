@@ -2,7 +2,7 @@ package ast;
 
 public class NodoDeclaracion extends NodoBase {
 
-    private String nombre;
+    private String nombre;    
     private Tipo.Variable tipo;
 
     public NodoDeclaracion() {

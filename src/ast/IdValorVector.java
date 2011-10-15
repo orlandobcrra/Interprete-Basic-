@@ -3,12 +3,11 @@ package ast;
 import ast.Tipo.Variable;
 
 /**
-
- * Esta clase mantiene asociado el tipo / valor. Donde tipo representa el
+ * Esta clase mantiene asociado el tipo / valor para vectores. Donde tipo representa el
  * tipo de declaracion de la variable; y el valor 
  * contiene el valor verdadero de la variable.
  * Objetos de esta clase, deben ser utilizados en el Map que contiene las 
- * variables del programa.
+ * variables de vectores del programa.
  * 
  * @author Orlando Becerra
  * @author Jesus Colmenares
@@ -16,7 +15,7 @@ import ast.Tipo.Variable;
  * @author Danny Sanchez
  * @version 11/10/2011
  */
-public class IdValor {
+public class IdValorVector {
 
     /**
      * El nodo con el que se realizo la declaracion de la variable.
@@ -25,7 +24,7 @@ public class IdValor {
     /**
      * El nodo que contiene el valor de la variable.
      */
-    private NodoBase valor;
+    private NodoBase[] valor;
 
     /**
      * Crea una instacia de IdValor partiendo del nodo que contiene la
@@ -33,8 +32,16 @@ public class IdValor {
      * 
      * @param nodoDeclaracion el nodo declaracion
      */
-    public IdValor(Tipo.Variable tipo) {
+    public IdValorVector(int tam, Tipo.Variable tipo) {
         this.tipo = tipo;
+        valor = new NodoBase[tam];
+        for (int i = 0; i < valor.length; i++) {
+            if (tipo.equals(Tipo.Variable.STRING)) {
+                valor[i] = new NodoCadena("");
+            } else {
+                valor[i] = new NodoNumero(0.0);
+            }
+        }
     }
 
     /**
@@ -47,20 +54,22 @@ public class IdValor {
     }
 
     /**
-     * Obtiene el nodo con valor actual de esta variable.
+     * Obtiene el nodo con valor actual de esta variable en la posicion p.
      * 
+     * @param p la posicion
      * @return el nodo que contiene el varlo. 
      */
-    public NodoBase getValor() {
-        return valor;
+    public NodoBase getValor(int p) {
+        return valor[p];
     }
 
     /**
-     * Asigna el nodo con el valor que debe tener la variable.
+     * Asigna el nodo con el valor que debe tener el vector en la posicion p.
      * 
+     * @param p la posicion
      * @param valor el nodo valor 
      */
-    public void setValor(NodoBase valor) {
-        this.valor = valor;
+    public void setValor(int p, NodoBase valor) {
+        this.valor[p] = valor;
     }
 }

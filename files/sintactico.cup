@@ -67,7 +67,10 @@ non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
 non terminal NodoBase declaraciones;
 non terminal NodoBase declaracion;
+non terminal NodoBase declaracionesVector;
+non terminal NodoBase declaracionVector;
 non terminal NodoBase asignacion;
+non terminal NodoBase asignacionVector;
 non terminal NodoBase expresion;
 non terminal NodoBase print;
 non terminal NodoBase printAnidado;
@@ -134,9 +137,19 @@ sent ::=
 			System.out.println("\t Regla: sent ::= declaracion");
 		RESULT = sentencia;                              
 	:}
+	| DIM declaracionesVector:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= declaracion");
+		RESULT = sentencia;                              
+	:}
 	| asignacion:sentencia {:
 		if(debug)
 			System.out.println("\t Regla: sent ::= asignacion");
+		RESULT=sentencia;                              
+	:}
+	| asignacionVector:sentencia {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= asignacionVector");
 		RESULT=sentencia;                              
 	:}
 	| for:sentencia {:
@@ -226,6 +239,51 @@ declaracion ::=
 	:}
 ;
 
+declaracionesVector ::=
+	declaracionesVector COMA declaracionVector {:
+		if(debug)
+			System.out.println("\t Regla: declaracionesVector ::= declaracionesVector COMA declaracionVector");
+		RESULT=null;
+		//TODO lo del hermano
+	:}
+	| declaracionVector:declaracion {:
+		RESULT = declaracion;                               
+	:}
+;
+
+declaracionVector ::=
+	IDENTIFICADOR:nombre LCORCHE expresion:ex RCORCHE AS INTEGER {:
+		if(debug)
+			System.out.println("\t Regla: declaracionVector ::= IDENTIFICADOR AS INTEGER");
+		if(nombre!=null){
+			RESULT = new NodoDeclaracionVector(nombre.toString(),ex,Tipo.Variable.INTEGER);		
+		}else{
+			RESULT = null;
+			System.err.println("ERROR: declaracionVector ::= DIM (SIN NOMBRE DE VARIABLE)");
+		}                                
+	:}
+	| IDENTIFICADOR:nombre LCORCHE expresion:ex RCORCHE AS FLOAT {:
+		if(debug)
+			System.out.println("\t Regla: declaracionVector ::= IDENTIFICADOR AS FLOAT");
+		if(nombre!=null){
+			RESULT = new NodoDeclaracionVector(nombre.toString(),ex,Tipo.Variable.FLOAT);		
+		}else{
+			RESULT = null;
+			System.err.println("ERROR: declaracionVector ::= DIM (SIN NOMBRE DE VARIABLE)");
+		}                                
+	:}
+	| IDENTIFICADOR:nombre LCORCHE expresion:ex RCORCHE AS STRING {:
+		if(debug)
+			System.out.println("\t Regla: declaracionVector ::= IDENTIFICADOR AS STRING");
+		if(nombre!=null){
+			RESULT = new NodoDeclaracionVector(nombre.toString(),ex,Tipo.Variable.STRING);		
+		}else{
+			RESULT = null;
+			System.err.println("ERROR: declaracionVector ::= DIM (SIN NOMBRE DE VARIABLE)");
+		}                                
+	:}
+;
+
 asignacion ::=
 	IDENTIFICADOR:variable IGUAL expresion:valor {:
 		if(debug)
@@ -239,6 +297,19 @@ asignacion ::=
 	:}
 ;
 
+asignacionVector ::=
+	IDENTIFICADOR:variable LCORCHE expresion:ex RCORCHE IGUAL expresion:valor {:
+		if(debug)
+			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
+		RESULT = new NodoAsignacionVector(variable, ex, valor);
+	:}
+	| IDENTIFICADOR:variable LCORCHE expresion:ex RCORCHE IGUAL CADENA:valor {:
+		if(debug)
+			System.out.println("\t Regla: asignacion ::= IDENTIFICADOR IGUAL expresion");
+		RESULT = new NodoAsignacionVector(variable, ex, new NodoCadena(valor));
+	:}
+;
+
 expresion ::= 
 	NUMERO:num {:
 		if(debug)
@@ -249,6 +320,11 @@ expresion ::=
 		if(debug)
 			System.out.println("\t Regla: valor ::= IDENTIFICADOR ");
 		RESULT = new NodoIdentificador(variable);
+	:}
+	| IDENTIFICADOR:nombre LCORCHE expresion:ex RCORCHE {:
+		if(debug)
+			System.out.println("\t Regla: valor ::= IDENTIFICADOR ");
+		RESULT = new NodoIdentificadorVector(nombre,ex);
 	:}
 	| expresion:e1 SUMA expresion:e2 {:
 		if(debug)
