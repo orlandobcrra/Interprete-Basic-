@@ -1,3 +1,0 @@
-DIM I[5] AS STRING
-I[4]="HOLA"
-PRINT I[4]

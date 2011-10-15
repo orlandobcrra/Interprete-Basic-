@@ -15,6 +15,7 @@ import ast.NodoDo;
 import ast.NodoIdentificador;
 import ast.NodoIdentificadorVector;
 import ast.NodoIf;
+import ast.NodoLeerVector;
 import ast.NodoOperacionBool;
 import ast.NodoOperacionBoolLogica;
 import ast.NodoOperacionBoolUnaria;
@@ -35,6 +36,7 @@ import java.util.logging.Logger;
  */
 public class Interprete {
 
+    private java.util.Scanner in = new java.util.Scanner(System.in);
     private NodoBase root;
     private HashMap<String, IdValor> variables =
             new HashMap<String, IdValor>();
@@ -78,6 +80,8 @@ public class Interprete {
                 nodoEscribir((NodoEscribir) nodoActual);
             } else if (nodoActual instanceof NodoLeer) {
                 nodoLeer((NodoLeer) nodoActual);
+            } else if (nodoActual instanceof NodoLeerVector) {
+                nodoLeerVector((NodoLeerVector) nodoActual);
             } else if (nodoActual instanceof NodoFor) {
                 nodoFor((NodoFor) nodoActual);
             } else if (nodoActual instanceof NodoDeclaracion) {
@@ -127,7 +131,12 @@ public class Interprete {
                     cadena = cadena.substring(1, cadena.length() - 1);
                     System.out.print(cadena);
                 } else {
-                    System.out.print(getValorNumerico(valor));
+                    double d = getValorNumerico(valor);
+                    if (iv.getTipo().equals(Tipo.Variable.INTEGER)) {
+                        System.out.print((int) d);
+                    } else {
+                        System.out.print(d);
+                    }
                 }
             } else if (valor instanceof NodoIdentificadorVector) {
                 NodoIdentificadorVector id = (NodoIdentificadorVector) valor;
@@ -159,10 +168,34 @@ public class Interprete {
     }
 
     private void nodoLeer(NodoLeer nodoLeer) {
-        try {
-            int i = System.in.read();
-        } catch (IOException ex) {
-            Logger.getLogger(Interprete.class.getName()).log(Level.SEVERE, null, ex);
+        IdValor iv = variables.get(nodoLeer.getVariable());
+        if (iv.getTipo().equals(Tipo.Variable.STRING)) {
+            String s = null;
+            do {
+                s = in.nextLine();
+            } while (s == null || s.length() == 0);
+            s = "\"" + s + "\"";
+            iv.setValor(new NodoCadena(s));
+        } else if (iv.getTipo().equals(Tipo.Variable.INTEGER)) {
+            long i = in.nextLong();
+            iv.setValor(new NodoNumero(i));
+        } else if (iv.getTipo().equals(Tipo.Variable.FLOAT)) {
+            double i = in.nextDouble();
+            iv.setValor(new NodoNumero(i));
+        }
+    }
+
+    private void nodoLeerVector(NodoLeerVector nodoLeer) {
+        IdValorVector iv = variablesVector.get(nodoLeer.getVariable());
+        if (iv.getTipo().equals(Tipo.Variable.STRING)) {
+            String s = in.nextLine();
+            iv.setValor((int) getValorNumerico(nodoLeer.getEx()), new NodoCadena(s));
+        } else if (iv.getTipo().equals(Tipo.Variable.INTEGER)) {
+            long i = in.nextLong();
+            iv.setValor((int) getValorNumerico(nodoLeer.getEx()), new NodoNumero(i));
+        } else if (iv.getTipo().equals(Tipo.Variable.FLOAT)) {
+            double i = in.nextDouble();
+            iv.setValor((int) getValorNumerico(nodoLeer.getEx()), new NodoNumero(i));
         }
     }
 
@@ -191,36 +224,48 @@ public class Interprete {
     }
 
     private void nodoAsignacion(NodoAsignacion nodoAsignacion) {
-        //TODO validar tipo de dato
-        //TODO si es tipo integer cast to (int)
         IdValor ladoDerecho = variables.get(nodoAsignacion.getIdentificador());
-        if (!ladoDerecho.getTipo().equals(Tipo.Variable.STRING)) {
+        if (!ladoDerecho.getTipo().equals(Tipo.Variable.STRING) && !(nodoAsignacion.getValor() instanceof NodoCadena)) {
             NodoNumero nodoNumero = (NodoNumero) ladoDerecho.getValor();
             if (nodoNumero == null) {
                 nodoNumero = new NodoNumero();
                 ladoDerecho.setValor(nodoNumero);
             }
-            nodoNumero.setValor(getValorNumerico(nodoAsignacion.getValor()));
-        } else {
+            if (ladoDerecho.getTipo().equals(Tipo.Variable.INTEGER)) {
+                nodoNumero.setValor((double) (int) getValorNumerico(nodoAsignacion.getValor()));
+                return;
+            } else {
+                nodoNumero.setValor(getValorNumerico(nodoAsignacion.getValor()));
+                return;
+            }
+        } else if (nodoAsignacion.getValor() instanceof NodoCadena) {
             ladoDerecho.setValor(nodoAsignacion.getValor());
+            return;
         }
+        throw new RuntimeException("Asignacion de tipo de datos incorrecto,,,");
     }
 
     private void nodoAsignacionVector(NodoAsignacionVector nodoAsignacion) {
-        //TODO validar tipo de dato
-        //TODO si es tipo integer cast to (int)
         IdValorVector ladoDerecho = variablesVector.get(nodoAsignacion.getIdentificador());
         int p = (int) getValorNumerico(nodoAsignacion.getEx());
-        if (!ladoDerecho.getTipo().equals(Tipo.Variable.STRING)) {
+        if (!ladoDerecho.getTipo().equals(Tipo.Variable.STRING) && !(nodoAsignacion.getValor() instanceof NodoCadena)) {
             NodoNumero nodoNumero = (NodoNumero) ladoDerecho.getValor(p);
             if (nodoNumero == null) {
                 nodoNumero = new NodoNumero();
                 ladoDerecho.setValor(p, nodoNumero);
             }
-            nodoNumero.setValor(getValorNumerico(nodoAsignacion.getValor()));
-        } else {
+            if (ladoDerecho.getTipo().equals(Tipo.Variable.INTEGER)) {
+                nodoNumero.setValor((double) (int) getValorNumerico(nodoAsignacion.getValor()));
+                return;
+            } else {
+                nodoNumero.setValor(getValorNumerico(nodoAsignacion.getValor()));
+                return;
+            }
+        } else if (nodoAsignacion.getValor() instanceof NodoCadena) {
             ladoDerecho.setValor(p, nodoAsignacion.getValor());
+            return;
         }
+        throw new RuntimeException("Asignacion de tipo de datos incorrecto,,,");
     }
 
     private void nodoIf(NodoIf nodoIf) {

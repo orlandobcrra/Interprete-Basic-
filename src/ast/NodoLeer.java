@@ -1,6 +1,6 @@
 package ast;
 
-public class NodoLeer extends NodoBase {
+public class NodoLeer extends NodoBase{
 
     private String variable;
 

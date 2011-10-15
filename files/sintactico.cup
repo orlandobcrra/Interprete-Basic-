@@ -102,6 +102,10 @@ programa ::=
 			System.out.println("\t Regla: programa ::= seq_sent LINEANUEVA");
 		root = prog;
     :}
+	| {: 
+		if(debug)
+			System.out.println("\t Regla: programa ::= nada :P ");
+	:}
 ;
 
 seq_sent ::=
@@ -181,6 +185,11 @@ sent ::=
 		if(debug)
 			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
 		RESULT = new NodoLeer(nombre);
+	:}
+	| INPUT IDENTIFICADOR:nombre LCORCHE expresion:ex RCORCHE {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
+		RESULT = new NodoLeerVector(nombre,ex);
 	:}
 	| LINEANUEVA {:
 		if(debug)
