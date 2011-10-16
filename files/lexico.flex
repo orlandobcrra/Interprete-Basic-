@@ -26,10 +26,15 @@ letra			= [a-zA-Z]
 identificador	= {letra}([a-zA-Z0-9.%$])*
 nuevalinea		= \n | \n\r | \r\n
 espacio			= [ \t]+
-cadena			= "\""[^;\n]*"\""
+cadena			= "\""[^\"]*"\""
 
 %%
 
+"SUB" {
+	if(debug)
+		System.out.println("token SUB");
+	return sf.newSymbol("SUB",Symbols.SUB);
+}
 "END" {
 	if(debug)
 		System.out.println("token END");

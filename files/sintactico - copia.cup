@@ -3,23 +3,19 @@ import ast.*;
 
 action code {:
 	private NodoBase root=null;
-	private NodoBase funciones=null;
 	private boolean debug=true;	
 	private int lineaNum=0;
 
 	public NodoBase getRoot(){
 		return root;
 	}
-	
-	public NodoBase getFunciones(){
-		return funciones;
-	}
 :}
 
 /* Simbolos Terminales */
+terminal COMENTARIO;
 terminal LINEANUEVA;
-terminal END;
 terminal SUB;
+terminal END;
 terminal DIM;
 terminal String IDENTIFICADOR;
 terminal AS;
@@ -68,10 +64,12 @@ terminal UNTIL;
 
 /* Simbolos No Terminales */
 non terminal NodoBase programaTotal;
+non terminal NodoBase lineas;
 non terminal NodoBase funciones;
+non terminal NodoBase funcion;
 non terminal NodoBase parametros;
-non terminal NodoBase declaracionesRecibe;
-non terminal NodoBase declaracionesRecibe2;
+non terminal NodoBase p2;
+non terminal NodoBase programa;
 non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
 non terminal NodoBase declaraciones;
@@ -90,29 +88,32 @@ non terminal NodoBase expresionBool;
 non terminal NodoBase if;
 non terminal NodoWhile while;
 non terminal NodoBase do;
-non terminal NodoBase separar;
-non terminal NodoBase lineas;
 
+precedence left OR;
+precedence left AND;
+precedence right NOT;
 precedence left REST, SUMA;
 precedence left MULT, DIVI, MOD;
 precedence left SIGNO;
 precedence right POTE;
-precedence left AND, OR;
-precedence right NOT;
+
 
 
 /* REGLAS GRAMATICALES */
+
 programaTotal ::=
-	separar seq_sent:prog separar {:
+	programa:prog {:
 		if(debug)
-			System.out.println("\t Regla: programaTotal ::= seq_sent");
+			System.out.println("\t Regla: programaTotal ::= programa");
 		root=prog;
 	:}
-	| separar seq_sent:prog separar END funciones:func {:
+	| programa END funciones {:
 		if(debug)
-			System.out.println("\t Regla: programaTotal ::= seq_sent END funciones ");
-		root=prog;
-		funciones=func;
+			System.out.println("\t Regla: programaTotal ::= programa END funciones ");
+	:}
+	| {: 
+		if(debug)
+			System.out.println("\t Regla: programaTotal ::= nada :P ");
 	:}
 	| error {:
 		if(debug)
@@ -121,37 +122,38 @@ programaTotal ::=
 	:}
 ;
 
+lineas ::=
+	lineas LINEANUEVA {: :}
+	| LINEANUEVA {: :}
+	| {: :}
+;
+
 funciones ::=
-	funciones:fs separar SUB IDENTIFICADOR:nombre LPARENT parametros:parametros RPARENT separar seq_sent:prog separar END SUB {:
+	funciones:fs LINEANUEVA funcion {:
 		if(debug)
 			System.out.println("\t Regla: funciones ::= VARIAS FUNCIONES ");
-		NodoBase hijoActual = fs;
-		if(hijoActual !=null){
-			while(hijoActual.tieneHermano()){
-				hijoActual = hijoActual.getHermanoDerecha();
-			}
-			hijoActual.setHermanoDerecha(new NodoProcedimientoDeclaracion(nombre,parametros,prog));
-			RESULT = fs;
-		}else{
-			RESULT = new NodoProcedimientoDeclaracion(nombre,parametros,prog);
-		}
 	:}
-	| separar SUB IDENTIFICADOR:nombre LPARENT parametros:parametros RPARENT separar seq_sent:prog separar END SUB separar {:
+	| funcion {:
 		if(debug)
 			System.out.println("\t Regla: funciones ::= UNA FUNCION ");
-		RESULT = new NodoProcedimientoDeclaracion(nombre,parametros,prog);
 	:}
-	| separar {:
+	| {:
 		if(debug)
-			System.out.println("\t Regla: funciones ::= separar ");
+			System.out.println("\t Regla: funciones ::= nada ");
+	:}
+;
+
+funcion ::=
+	SUB IDENTIFICADOR:nombre LPARENT parametros RPARENT LINEANUEVA seq_sent:cuerpo LINEANUEVA END SUB {:
+		if(debug)
+			System.out.println("\t Regla: funcion ::= funcion :) ");
 	:}
 ;
 
 parametros ::=
-	declaraciones:d {:
+	declaraciones {:
 		if(debug)
 			System.out.println("\t Regla: parametros ::= declaraciones ");	
-		RESULT = d;
 	:}
 	| {:
 		if(debug)
@@ -159,32 +161,21 @@ parametros ::=
 	:}
 ;
 
-declaracionesRecibe2 ::=
-	declaracionesRecibe:d {:
+programa ::=
+	seq_sent:prog {:
 		if(debug)
-			System.out.println("\t Regla: parametros ::= declaraciones ");	
-		RESULT = d;
-	:}
-	| {:
+			System.out.println("\t Regla: programa ::= seq_sent");
+		RESULT = prog;
+    :}
+	| seq_sent:prog LINEANUEVA {:
 		if(debug)
-			System.out.println("\t Regla: parametros ::= nada ");
-	:}
-;
-
-declaracionesRecibe ::=
-	declaracionesRecibe COMA printValor {:
-		if(debug)
-			System.out.println("\t Regla: declaracionesRecibe ::= declaracionesRecibe COMA IDENTIFICADOR");
-		RESULT=null;
-		//TODO lo del hermano
-	:}
-	| printValor:valor {:
-		RESULT = valor;                               
-	:}
+			System.out.println("\t Regla: programa ::= seq_sent LINEANUEVA");
+		RESULT = prog;
+    :}
 ;
 
 seq_sent ::=
-	seq_sent:sentencias separar sent:sentencia {:
+	seq_sent:sentencias LINEANUEVA sent:sentencia {:
 		if(debug)
 			System.out.println("\t Regla: seq_sent ::= Varias Sentencias");
 		NodoBase hijoActual = sentencias;
@@ -251,11 +242,6 @@ sent ::=
 			System.out.println("\t Regla: sent ::= do");
 		RESULT=sentencia;                              
 	:}
-	| END {:
-		if(debug)
-			System.out.println("\t Regla: sent ::= END");
-		RESULT = null;
-	:}
 	| INPUT IDENTIFICADOR:nombre {:
 		if(debug)
 			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
@@ -266,10 +252,9 @@ sent ::=
 			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
 		RESULT = new NodoLeerVector(nombre,ex);
 	:}
-	| IDENTIFICADOR:nombre LPARENT declaracionesRecibe2:parametros RPARENT {:
+	| LINEANUEVA {:
 		if(debug)
-			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
-		RESULT = new NodoProcedimientoLlamada(nombre,parametros);
+			System.out.println("\t Regla: sent ::= LINEANUEVA");
 	:}
 ;
 
@@ -281,8 +266,6 @@ declaraciones ::=
 		//TODO lo del hermano
 	:}
 	| declaracion:declaracion {:
-		if(debug)
-			System.out.println("\t Regla: declaraciones ::= declaracion");
 		RESULT = declaracion;                               
 	:}
 ;
@@ -500,12 +483,12 @@ printValor ::=
 ;
 
 for ::=
-	FOR IDENTIFICADOR:variable IGUAL expresion:desde TO expresion:hasta separar seq_sent:cuerpo separar NEXT IDENTIFICADOR:variable2 {:
+	FOR IDENTIFICADOR:variable IGUAL expresion:desde TO expresion:hasta LINEANUEVA seq_sent:cuerpo LINEANUEVA NEXT IDENTIFICADOR:variable2 {:
 		if(debug)
 			System.out.println("\t Regla: for ::= Todo el FOR");
 		RESULT = new NodoFor(variable, desde, hasta, cuerpo, variable2);
 	:}
-	| FOR IDENTIFICADOR:variable IGUAL expresion:desde TO expresion:hasta STEP expresion:step separar seq_sent:cuerpo separar NEXT IDENTIFICADOR:variable2 {:
+	| FOR IDENTIFICADOR:variable IGUAL expresion:desde TO expresion:hasta STEP expresion:step LINEANUEVA seq_sent:cuerpo LINEANUEVA NEXT IDENTIFICADOR:variable2 {:
 		if(debug)
 			System.out.println("\t Regla: for ::= Todo el FOR");
 		RESULT = new NodoFor(variable, desde, hasta, cuerpo, variable2, step);
@@ -574,12 +557,12 @@ condicion ::=
 ;
 
 if ::=
-	IF expresionBool:ex THEN separar seq_sent:then separar ENDIF {:
+	IF expresionBool:ex THEN LINEANUEVA seq_sent:then LINEANUEVA ENDIF {:
 		if(debug)
 			System.out.println("\t Regla: if ::= IF SOLO");
 		RESULT = new NodoIf(ex, then);
 	:}
-	| IF expresionBool:ex THEN separar seq_sent:then separar ELSE separar seq_sent:else1 separar ENDIF {:
+	| IF expresionBool:ex THEN LINEANUEVA seq_sent:then LINEANUEVA ELSE LINEANUEVA seq_sent:else1 LINEANUEVA ENDIF {:
 		if(debug)
 			System.out.println("\t Regla: if ::= IF CON ELSE");
 		RESULT = new NodoIf(ex, then, else1);
@@ -587,7 +570,7 @@ if ::=
 ;
 
 while ::=
-	WHILE expresionBool:ex separar seq_sent:cuerpo separar WEND {:
+	WHILE expresionBool:ex LINEANUEVA seq_sent:cuerpo LINEANUEVA WEND {:
 		if(debug)
 			System.out.println("\t Regla: if ::= IF SOLO");
 		RESULT = new NodoWhile(ex,cuerpo);
@@ -595,19 +578,9 @@ while ::=
 ;
 
 do ::=
-	DO separar seq_sent:cuerpo separar LOOP UNTIL expresionBool:ex {:
+	DO LINEANUEVA seq_sent:cuerpo LINEANUEVA LOOP UNTIL expresionBool:ex {:
 		if(debug)
 			System.out.println("\t Regla: if ::= IF SOLO");
 		RESULT = new NodoDo(ex,cuerpo);
 	:}
-;
-
-separar ::=
-	lineas {: :}
-	| {: :}
-;
-
-lineas ::=
-	separar LINEANUEVA {: :}
-	| LINEANUEVA {: :}	
 ;

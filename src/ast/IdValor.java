@@ -38,6 +38,18 @@ public class IdValor {
     }
 
     /**
+     * Crea una instacia de IdValor partiendo del nodo que contiene la
+     * declaracion de la variable y su valor.
+     * 
+     * @param nodoDeclaracion el nodo declaracion
+     * @param valor el nodo que contiene el valor de la variable
+     */
+    public IdValor(Tipo.Variable tipo, NodoBase valor) {
+        this.tipo = tipo;
+        this.valor = valor;
+    }
+
+    /**
      * Obtiene el tipo de variable.
      * 
      * @return el tipo de variable

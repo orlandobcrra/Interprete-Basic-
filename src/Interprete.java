@@ -12,6 +12,7 @@ import ast.IdValorVector;
 import ast.NodoAsignacionVector;
 import ast.NodoDeclaracionVector;
 import ast.NodoDo;
+import ast.NodoProcedimientoDeclaracion;
 import ast.NodoIdentificador;
 import ast.NodoIdentificadorVector;
 import ast.NodoIf;
@@ -21,13 +22,11 @@ import ast.NodoOperacionBoolLogica;
 import ast.NodoOperacionBoolUnaria;
 import ast.NodoOperacionMat;
 import ast.NodoOperacionMatUnaria;
+import ast.NodoProcedimientoLlamada;
 import ast.NodoWhile;
 import ast.Tipo;
 import ast.Tipo.OpMat;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Interpreta cada uno de los nodos hasta el final del programa.
@@ -38,6 +37,9 @@ public class Interprete {
 
     private java.util.Scanner in = new java.util.Scanner(System.in);
     private NodoBase root;
+    private NodoProcedimientoDeclaracion rootProcedimientos;
+    private HashMap<String, NodoProcedimientoDeclaracion> procedimientos =
+            new HashMap<String, NodoProcedimientoDeclaracion>();
     private HashMap<String, IdValor> variables =
             new HashMap<String, IdValor>();
     private HashMap<String, IdValorVector> variablesVector =
@@ -49,11 +51,18 @@ public class Interprete {
      * 
      * @param root el nodo raiz
      */
-    public Interprete(NodoBase root) {
+    public Interprete(NodoBase root, NodoBase rootProcedimientos) {
         this.root = root;
+        this.rootProcedimientos = (NodoProcedimientoDeclaracion) rootProcedimientos;
     }
 
     public void start() {
+        NodoProcedimientoDeclaracion nodoActual = rootProcedimientos;
+        while (nodoActual != null) {
+            procedimientos.put(nodoActual.getNombre(), nodoActual);
+            nodoActual = (NodoProcedimientoDeclaracion) nodoActual.getHermanoDerecha();
+        }
+
         System.out.println("");
         System.out.println("-----------------------------------");
         System.out.println("");
@@ -98,9 +107,52 @@ public class Interprete {
                 nodoWhile((NodoWhile) nodoActual);
             } else if (nodoActual instanceof NodoDo) {
                 nodoDo((NodoDo) nodoActual);
+            } else if (nodoActual instanceof NodoProcedimientoLlamada) {
+                NodoProcedimientoLlamada llamada = (NodoProcedimientoLlamada) nodoActual;
+                NodoProcedimientoDeclaracion procedimiento = procedimientos.get(llamada.getNombre());
+
+                NodoDeclaracion declaracion = (NodoDeclaracion) procedimiento.getParametros();
+                NodoBase valor = llamada.getParametros();
+                while (declaracion != null && valor != null) {
+                    variables.put(declaracion.getNombre(), new IdValor(declaracion.getTipo(), getNuevoValor(valor)));
+                    declaracion = (NodoDeclaracion) declaracion.getHermanoDerecha();
+                    valor = valor.getHermanoDerecha();
+                }
+                if (valor != null || declaracion != null) {
+                    throw new RuntimeException("cantidad de parametros no coincide");
+                }
+                interpretarNodo(procedimiento.getCuerpo());
             }
             nodoActual = nodoActual.getHermanoDerecha();
         }
+    }
+
+    private NodoBase getNuevoValor(NodoBase base) {
+        if (base instanceof NodoCadena) {
+            return new NodoCadena(((NodoCadena) base).getCadena());
+        } else if (base instanceof NodoNumero) {
+            return new NodoNumero(((NodoNumero) base).getValor());
+        } else if (base instanceof NodoOperacionMat || base instanceof NodoOperacionMatUnaria) {
+            return new NodoNumero(getValorNumerico(base));
+        } else if (base instanceof NodoIdentificador) {
+            NodoIdentificador id = (NodoIdentificador) base;
+            IdValor iv = variables.get(id.getNombre());
+            if (iv.getTipo().equals(Tipo.Variable.STRING)) {
+                return new NodoCadena(((NodoCadena) iv.getValor()).getCadena());
+            } else {
+                return new NodoNumero(getValorNumerico(iv.getValor()));
+            }
+        } else if (base instanceof NodoIdentificadorVector) {
+            NodoIdentificadorVector id = (NodoIdentificadorVector) base;
+            IdValorVector iv = variablesVector.get(id.getNombre());
+            if (iv.getTipo().equals(Tipo.Variable.STRING)) {
+                return new NodoCadena(((NodoCadena) iv.getValor((int) getValorNumerico(id.getEx()))).getCadena());
+            } else {
+                return new NodoNumero(getValorNumerico(iv.getValor((int) getValorNumerico(id.getEx()))));
+            }
+        }
+        System.out.println("que cagada :(");
+        return null;
     }
 
     /**
@@ -148,10 +200,20 @@ public class Interprete {
                     cadena = cadena.substring(1, cadena.length() - 1);
                     System.out.print(cadena);
                 } else {
-                    System.out.print(getValorNumerico(valor));
+                    double d = getValorNumerico(valor);
+                    if (iv.getTipo().equals(Tipo.Variable.INTEGER)) {
+                        System.out.print((int) d);
+                    } else {
+                        System.out.print(d);
+                    }
                 }
             } else {
-                System.out.print(getValorNumerico(valor));
+                double d = getValorNumerico(valor);
+                if (Math.round(d) - d == 0) {
+                    System.out.print((int) d);
+                } else {
+                    System.out.print(d);
+                }
             }
             //si es una sentencia print con varios valores separados por ";"
             valor = valor.getHermanoDerecha();

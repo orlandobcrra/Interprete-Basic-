@@ -26,6 +26,7 @@ public class Principal {
         }
         parser.parse();
         NodoBase root = parser.action_obj.getRoot();
-        new Interprete(root).start();
+        NodoBase funciones = parser.action_obj.getFunciones();
+        new Interprete(root,funciones).start();
     }
 }
