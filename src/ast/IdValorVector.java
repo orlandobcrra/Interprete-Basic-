@@ -72,4 +72,12 @@ public class IdValorVector {
     public void setValor(int p, NodoBase valor) {
         this.valor[p] = valor;
     }
+
+    public void setValor(NodoBase[] valor) {
+        this.valor = valor;
+    }
+
+    public NodoBase[] getValor() {
+        return valor;
+    }
 }

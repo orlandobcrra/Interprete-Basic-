@@ -111,10 +111,19 @@ public class Interprete {
                 NodoProcedimientoLlamada llamada = (NodoProcedimientoLlamada) nodoActual;
                 NodoProcedimientoDeclaracion procedimiento = procedimientos.get(llamada.getNombre());
 
-                NodoDeclaracion declaracion = (NodoDeclaracion) procedimiento.getParametros();
+                NodoBase declaracion = procedimiento.getParametros();
                 NodoBase valor = llamada.getParametros();
                 while (declaracion != null && valor != null) {
-                    variables.put(declaracion.getNombre(), new IdValor(declaracion.getTipo(), getNuevoValor(valor)));
+                    if (declaracion instanceof NodoDeclaracion) {
+                        variables.put(((NodoDeclaracion) declaracion).getNombre(), new IdValor(((NodoDeclaracion) declaracion).getTipo(), getNuevoValor(valor)));
+                    } else if (declaracion instanceof NodoDeclaracionVector) {
+                        int tam = (int) getValorNumerico(((NodoDeclaracionVector) declaracion).getTam());
+                        IdValorVector ivv = new IdValorVector(tam, ((NodoDeclaracionVector) declaracion).getTipo());
+                        NodoIdentificador id = (NodoIdentificador) valor;
+                        ivv.setValor(variablesVector.get(id.getNombre()).getValor());
+                        variablesVector.put(((NodoDeclaracionVector) declaracion).getNombre(),
+                                ivv);
+                    }
                     declaracion = (NodoDeclaracion) declaracion.getHermanoDerecha();
                     valor = valor.getHermanoDerecha();
                 }

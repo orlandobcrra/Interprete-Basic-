@@ -148,10 +148,27 @@ funciones ::=
 ;
 
 parametros ::=
-	declaraciones:d {:
+	parametros COMA declaracion {:
 		if(debug)
-			System.out.println("\t Regla: parametros ::= declaraciones ");	
-		RESULT = d;
+			System.out.println("\t Regla: declaraciones ::= declaraciones COMA declaracion");
+		RESULT=null;
+		//TODO lo del hermano
+	:}
+	| parametros COMA declaracionVector {:
+		if(debug)
+			System.out.println("\t Regla: declaraciones ::= declaraciones COMA declaracion");
+		RESULT=null;
+		//TODO lo del hermano
+	:}
+	| declaracion:declaracion {:
+		if(debug)
+			System.out.println("\t Regla: declaraciones ::= declaracion");
+		RESULT = declaracion;                               
+	:}
+	| declaracionVector:declaracion {:
+		if(debug)
+			System.out.println("\t Regla: declaraciones ::= declaracion");
+		RESULT = declaracion;                               
 	:}
 	| {:
 		if(debug)
