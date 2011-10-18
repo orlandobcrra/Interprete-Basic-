@@ -291,11 +291,20 @@ sent ::=
 ;
 
 declaraciones ::=
-	declaraciones COMA declaracion {:
+	declaraciones:declaraciones COMA declaracion:declaracion {:
 		if(debug)
 			System.out.println("\t Regla: declaraciones ::= declaraciones COMA declaracion");
 		RESULT=null;
-		//TODO lo del hermano
+		NodoBase hijoActual = declaraciones;
+		if(hijoActual !=null){
+			while(hijoActual.tieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(declaracion);
+			RESULT = declaraciones;
+		}else{
+			RESULT = declaracion;
+		}
 	:}
 	| declaracion:declaracion {:
 		if(debug)
@@ -338,11 +347,19 @@ declaracion ::=
 ;
 
 declaracionesVector ::=
-	declaracionesVector COMA declaracionVector {:
+	declaracionesVector:declaraciones COMA declaracionVector:declaracion {:
 		if(debug)
 			System.out.println("\t Regla: declaracionesVector ::= declaracionesVector COMA declaracionVector");
-		RESULT=null;
-		//TODO lo del hermano
+		NodoBase hijoActual = declaraciones;
+		if(hijoActual !=null){
+			while(hijoActual.tieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(declaracion);
+			RESULT = declaraciones;
+		}else{
+			RESULT = declaracion;
+		}
 	:}
 	| declaracionVector:declaracion {:
 		RESULT = declaracion;                               
@@ -558,32 +575,32 @@ expresionBool ::=
 ;
 
 condicion ::=
-	expresion:e1 IGUAL expresion:e2 {:
+	printValor:e1 IGUAL printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= IGUAL");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.IGUAL);
 	:}
-	| expresion:e1 MENOR expresion:e2 {:
+	| printValor:e1 MENOR printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= MENOR");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENOR);
 	:}
-	| expresion:e1 MENORIGUAL expresion:e2 {:
+	| printValor:e1 MENORIGUAL printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= MENORIGUAL");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENORIGUAL);
 	:}
-	| expresion:e1 MAYOR expresion:e2 {:
+	| printValor:e1 MAYOR printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= MAYOR");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYOR);
 	:}
-	| expresion:e1 MAYORIGUAL expresion:e2 {:
+	| printValor:e1 MAYORIGUAL printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= MAYORIGUAL");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYORIGUAL);
 	:}
-	| expresion:e1 DIFERENTE expresion:e2 {:
+	| printValor:e1 DIFERENTE printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= DIFERENTE");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.DIFERENTE);

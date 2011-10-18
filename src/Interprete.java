@@ -391,29 +391,58 @@ public class Interprete {
     }
 
     private boolean getValorBool(NodoOperacionBool bool) {
-        double derecho = getValorNumerico(bool.getOpDerecho());
-        double izquierdo = getValorNumerico(bool.getOpIzquierdo());
-        switch (bool.getTipo()) {
-            case IGUAL: {
-                return derecho == izquierdo;
+        if (!(bool.getOpDerecho() instanceof NodoCadena) && !(bool.getOpIzquierdo() instanceof NodoCadena)) {
+            double derecho = getValorNumerico(bool.getOpDerecho());
+            double izquierdo = getValorNumerico(bool.getOpIzquierdo());
+            switch (bool.getTipo()) {
+                case IGUAL: {
+                    return derecho == izquierdo;
+                }
+                case MENOR: {
+                    return derecho < izquierdo;
+                }
+                case MENORIGUAL: {
+                    return derecho <= izquierdo;
+                }
+                case MAYOR: {
+                    return derecho > izquierdo;
+                }
+                case MAYORIGUAL: {
+                    return derecho >= izquierdo;
+                }
+                case DIFERENTE: {
+                    return derecho != izquierdo;
+                }
+                default:
+                    return false;
             }
-            case MENOR: {
-                return derecho < izquierdo;
+        } else if ((bool.getOpDerecho() instanceof NodoCadena) && (bool.getOpIzquierdo() instanceof NodoCadena)) {
+            String derecho = ((NodoCadena) bool.getOpDerecho()).getCadena();
+            String izquierdo = ((NodoCadena) bool.getOpIzquierdo()).getCadena();
+            switch (bool.getTipo()) {
+                case IGUAL: {
+                    return derecho.compareTo(izquierdo) == 0;
+                }
+                case MENOR: {
+                    return derecho.compareTo(izquierdo) < 0;
+                }
+                case MENORIGUAL: {
+                    return derecho.compareTo(izquierdo) <= 0;
+                }
+                case MAYOR: {
+                    return derecho.compareTo(izquierdo) > 0;
+                }
+                case MAYORIGUAL: {
+                    return derecho.compareTo(izquierdo) >= 0;
+                }
+                case DIFERENTE: {
+                    return derecho.compareTo(izquierdo) != 0;
+                }
+                default:
+                    return false;
             }
-            case MENORIGUAL: {
-                return derecho <= izquierdo;
-            }
-            case MAYOR: {
-                return derecho > izquierdo;
-            }
-            case MAYORIGUAL: {
-                return derecho >= izquierdo;
-            }
-            case DIFERENTE: {
-                return derecho != izquierdo;
-            }
-            default:
-                return false;
+        } else {
+            throw new RuntimeException("Comparacion incompatible de tipos...");
         }
     }
 
