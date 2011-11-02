@@ -1,0 +1,13 @@
+PRINT "HOLAAAAAAAAAAAAA"
+MULTIPLICACION()
+END
+
+SUB MULTIPLICACION()
+    DIM I AS INTEGER, J AS INTEGER
+	FOR I=1 TO 11 
+        PRINT "Tabla del "; I
+		FOR J=1 TO 11
+			PRINT "La multiplicacion de "; I ; "por "; J ; "es" ; I*J
+		NEXT J
+    NEXT I
+END SUB

@@ -1,0 +1,38 @@
+PEDIRDATOS()
+END
+
+SUB PEDIRDATOS()
+	DIM VALOR AS FLOAT, OPC AS INTEGER, I AS INTEGER
+ FOR I = 0 TO 3 
+		PRINT "Ingrese 1 para convertir de grados Celsius a Fahrenheit o 2 para convertir Fahrenheit a Celsius"
+		INPUT OPC
+		IF ( OPC = 1 ) THEN
+			PRINT "Ingrese grados Celsius"
+			INPUT VALOR
+			CONVERSIONC_F(VALOR)	
+	ELSE
+		IF( OPC = 2 ) THEN
+			PRINT "Ingrese grados Fahrenheit"
+			INPUT VALOR
+			CONVERSIONF_C(VALOR)
+		ELSE
+			PRINT "Opcion invalida"
+		ENDIF	
+	ENDIF
+ 	NEXT I
+END SUB
+
+SUB CONVERSIONC_F(VALOR AS FLOAT)
+	 DIM RESULT AS FLOAT
+	 ' Celsius por 1,8 y sumando 32 
+	 RESULT = (VALOR*1.8)+32
+	 PRINT "El resultado es" ; RESULT
+END SUB
+
+SUB CONVERSIONF_C(VALOR AS FLOAT)
+	 DIM RESULT AS FLOAT
+	 ' Fahrenheit - 32 entre 1,8 
+	 RESULT = (VALOR - 32)/ 1.8
+	 PRINT "El resultado es" ; RESULT
+END SUB
+	

@@ -1,2 +1,2 @@
-java -jar BasicCompiler.jar entrada.basic
+java -jar dist/BasicCompiler.jar entrada.basic
 pause

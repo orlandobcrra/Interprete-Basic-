@@ -3,18 +3,21 @@ import ast.*;
 
 action code {:
 	private NodoBase root=null;
+	private NodoBase funciones=null;
 	private boolean debug=true;	
 	private int lineaNum=0;
 
 	public NodoBase getRoot(){
 		return root;
 	}
+	
+	public NodoBase getFunciones(){
+		return funciones;
+	}
 :}
 
 /* Simbolos Terminales */
-terminal COMENTARIO;
 terminal LINEANUEVA;
-terminal SUB;
 terminal END;
 terminal DIM;
 terminal String IDENTIFICADOR;
@@ -63,12 +66,6 @@ terminal LOOP;
 terminal UNTIL;
 
 /* Simbolos No Terminales */
-non terminal NodoBase programaTotal;
-non terminal NodoBase lineas;
-non terminal NodoBase funciones;
-non terminal NodoBase funcion;
-non terminal NodoBase parametros;
-non terminal NodoBase p2;
 non terminal NodoBase programa;
 non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
@@ -89,89 +86,31 @@ non terminal NodoBase if;
 non terminal NodoWhile while;
 non terminal NodoBase do;
 
-precedence left OR;
-precedence left AND;
-precedence right NOT;
 precedence left REST, SUMA;
 precedence left MULT, DIVI, MOD;
 precedence left SIGNO;
 precedence right POTE;
-
+precedence left AND, OR;
+precedence right NOT;
 
 
 /* REGLAS GRAMATICALES */
-
-programaTotal ::=
-	programa:prog {:
+programa ::=
+	seq_sent:prog {:
 		if(debug)
-			System.out.println("\t Regla: programaTotal ::= programa");
+			System.out.println("\t Regla: programaTotal ::= seq_sent");
 		root=prog;
 	:}
-	| programa END funciones {:
+	| seq_sent:prog LINEANUEVA END {:
 		if(debug)
-			System.out.println("\t Regla: programaTotal ::= programa END funciones ");
-	:}
-	| {: 
-		if(debug)
-			System.out.println("\t Regla: programaTotal ::= nada :P ");
+			System.out.println("\t Regla: programaTotal ::= seq_sent END funciones ");
+		root=prog;
 	:}
 	| error {:
 		if(debug)
 			System.out.println("\t Regla programaTotal ::= error"); 
 		System.out.println("Error: programaTotal ::= NO ENCONTRADA");
 	:}
-;
-
-lineas ::=
-	lineas LINEANUEVA {: :}
-	| LINEANUEVA {: :}
-	| {: :}
-;
-
-funciones ::=
-	funciones:fs LINEANUEVA funcion {:
-		if(debug)
-			System.out.println("\t Regla: funciones ::= VARIAS FUNCIONES ");
-	:}
-	| funcion {:
-		if(debug)
-			System.out.println("\t Regla: funciones ::= UNA FUNCION ");
-	:}
-	| {:
-		if(debug)
-			System.out.println("\t Regla: funciones ::= nada ");
-	:}
-;
-
-funcion ::=
-	SUB IDENTIFICADOR:nombre LPARENT parametros RPARENT LINEANUEVA seq_sent:cuerpo LINEANUEVA END SUB {:
-		if(debug)
-			System.out.println("\t Regla: funcion ::= funcion :) ");
-	:}
-;
-
-parametros ::=
-	declaraciones {:
-		if(debug)
-			System.out.println("\t Regla: parametros ::= declaraciones ");	
-	:}
-	| {:
-		if(debug)
-			System.out.println("\t Regla: parametros ::= nada ");
-	:}
-;
-
-programa ::=
-	seq_sent:prog {:
-		if(debug)
-			System.out.println("\t Regla: programa ::= seq_sent");
-		RESULT = prog;
-    :}
-	| seq_sent:prog LINEANUEVA {:
-		if(debug)
-			System.out.println("\t Regla: programa ::= seq_sent LINEANUEVA");
-		RESULT = prog;
-    :}
 ;
 
 seq_sent ::=
@@ -252,20 +191,27 @@ sent ::=
 			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
 		RESULT = new NodoLeerVector(nombre,ex);
 	:}
-	| LINEANUEVA {:
-		if(debug)
-			System.out.println("\t Regla: sent ::= LINEANUEVA");
-	:}
 ;
 
 declaraciones ::=
-	declaraciones COMA declaracion {:
+	declaraciones:declaraciones COMA declaracion:declaracion {:
 		if(debug)
 			System.out.println("\t Regla: declaraciones ::= declaraciones COMA declaracion");
 		RESULT=null;
-		//TODO lo del hermano
+		NodoBase hijoActual = declaraciones;
+		if(hijoActual !=null){
+			while(hijoActual.tieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(declaracion);
+			RESULT = declaraciones;
+		}else{
+			RESULT = declaracion;
+		}
 	:}
 	| declaracion:declaracion {:
+		if(debug)
+			System.out.println("\t Regla: declaraciones ::= declaracion");
 		RESULT = declaracion;                               
 	:}
 ;
@@ -304,11 +250,19 @@ declaracion ::=
 ;
 
 declaracionesVector ::=
-	declaracionesVector COMA declaracionVector {:
+	declaracionesVector:declaraciones COMA declaracionVector:declaracion {:
 		if(debug)
 			System.out.println("\t Regla: declaracionesVector ::= declaracionesVector COMA declaracionVector");
-		RESULT=null;
-		//TODO lo del hermano
+		NodoBase hijoActual = declaraciones;
+		if(hijoActual !=null){
+			while(hijoActual.tieneHermano()){
+				hijoActual = hijoActual.getHermanoDerecha();
+			}
+			hijoActual.setHermanoDerecha(declaracion);
+			RESULT = declaraciones;
+		}else{
+			RESULT = declaracion;
+		}
 	:}
 	| declaracionVector:declaracion {:
 		RESULT = declaracion;                               
@@ -524,32 +478,32 @@ expresionBool ::=
 ;
 
 condicion ::=
-	expresion:e1 IGUAL expresion:e2 {:
+	printValor:e1 IGUAL printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= IGUAL");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.IGUAL);
 	:}
-	| expresion:e1 MENOR expresion:e2 {:
+	| printValor:e1 MENOR printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= MENOR");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENOR);
 	:}
-	| expresion:e1 MENORIGUAL expresion:e2 {:
+	| printValor:e1 MENORIGUAL printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= MENORIGUAL");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MENORIGUAL);
 	:}
-	| expresion:e1 MAYOR expresion:e2 {:
+	| printValor:e1 MAYOR printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= MAYOR");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYOR);
 	:}
-	| expresion:e1 MAYORIGUAL expresion:e2 {:
+	| printValor:e1 MAYORIGUAL printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= MAYORIGUAL");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.MAYORIGUAL);
 	:}
-	| expresion:e1 DIFERENTE expresion:e2 {:
+	| printValor:e1 DIFERENTE printValor:e2 {:
 		if(debug)
 			System.out.println("\t Regla: condicion ::= DIFERENTE");
 		RESULT = new NodoOperacionBool(e1,e2,Tipo.OpBool.DIFERENTE);

@@ -17,7 +17,7 @@ action code {:
 :}
 
 /* Simbolos Terminales */
-
+terminal LINEANUEVA;
 terminal END;
 terminal SUB;
 terminal DIM;
@@ -65,17 +65,13 @@ terminal WEND;
 terminal DO;
 terminal LOOP;
 terminal UNTIL;
-terminal LINEANUEVA;
-terminal CLS;
 
 /* Simbolos No Terminales */
 non terminal NodoBase programaTotal;
-non terminal NodoBase funcion;
 non terminal NodoBase funciones;
-non terminal NodoBase recibeParametrosOpcional;
-non terminal NodoBase recibeParametros;
-non terminal NodoBase envioParametrosOpcional;
-non terminal NodoBase envioParametros;
+non terminal NodoBase parametros;
+non terminal NodoBase declaracionesRecibe;
+non terminal NodoBase declaracionesRecibe2;
 non terminal NodoBase seq_sent;
 non terminal NodoBase sent;
 non terminal NodoBase declaraciones;
@@ -112,20 +108,11 @@ programaTotal ::=
 			System.out.println("\t Regla: programaTotal ::= seq_sent");
 		root=prog;
 	:}
-	| separar seq_sent:prog separar END separar {:
-		if(debug)
-			System.out.println("\t Regla: programaTotal ::= seq_sent END ");
-		root=prog;
-	:}
-	| separar seq_sent:prog separar END separar funciones:func separar {:
+	| separar seq_sent:prog separar END funciones:func {:
 		if(debug)
 			System.out.println("\t Regla: programaTotal ::= seq_sent END funciones ");
 		root=prog;
 		funciones=func;
-	:}
-	| separar {:
-		if(debug)
-			System.out.println("\t Regla: programaTotal ::= nada ");
 	:}
 	| error {:
 		if(debug)
@@ -135,7 +122,7 @@ programaTotal ::=
 ;
 
 funciones ::=
-	funciones:fs separar funcion:f {:
+	funciones:fs separar SUB IDENTIFICADOR:nombre LPARENT parametros:parametros RPARENT separar seq_sent:prog separar END SUB {:
 		if(debug)
 			System.out.println("\t Regla: funciones ::= VARIAS FUNCIONES ");
 		NodoBase hijoActual = fs;
@@ -143,111 +130,73 @@ funciones ::=
 			while(hijoActual.tieneHermano()){
 				hijoActual = hijoActual.getHermanoDerecha();
 			}
-			hijoActual.setHermanoDerecha(f);
+			hijoActual.setHermanoDerecha(new NodoProcedimientoDeclaracion(nombre,parametros,prog));
 			RESULT = fs;
 		}else{
-			RESULT = f;
+			RESULT = new NodoProcedimientoDeclaracion(nombre,parametros,prog);
 		}
 	:}
-	| funcion:f {:
+	| separar SUB IDENTIFICADOR:nombre LPARENT parametros:parametros RPARENT separar seq_sent:prog separar END SUB separar {:
 		if(debug)
 			System.out.println("\t Regla: funciones ::= UNA FUNCION ");
-		RESULT = f;
-	:}
-;
-
-funcion ::=
-	SUB IDENTIFICADOR:nombre LPARENT recibeParametrosOpcional:parametros RPARENT separar seq_sent:prog separar END SUB {:
-		if(debug)
-			System.out.println("\t Regla: funcion ::= Delcaracion ");
 		RESULT = new NodoProcedimientoDeclaracion(nombre,parametros,prog);
 	:}
-;
-
-recibeParametrosOpcional ::=
-	recibeParametros:recibe {:
+	| separar {:
 		if(debug)
-			System.out.println("\t Regla: recibeParametrosOpcional ::= recibeParametros");
-		RESULT = recibe;                               
-	:}
-	| {:
-		if(debug)
-			System.out.println("\t Regla: recibeParametrosOpcional ::= nada");                             
+			System.out.println("\t Regla: funciones ::= separar ");
 	:}
 ;
 
-recibeParametros ::=
-	declaracion:declaracion {:
+parametros ::=
+	parametros COMA declaracion {:
 		if(debug)
-			System.out.println("\t Regla: recibeParametros ::= declaracion");
+			System.out.println("\t Regla: declaraciones ::= declaraciones COMA declaracion");
+		RESULT=null;
+		//TODO lo del hermano
+	:}
+	| parametros COMA declaracionVector {:
+		if(debug)
+			System.out.println("\t Regla: declaraciones ::= declaraciones COMA declaracion");
+		RESULT=null;
+		//TODO lo del hermano
+	:}
+	| declaracion:declaracion {:
+		if(debug)
+			System.out.println("\t Regla: declaraciones ::= declaracion");
 		RESULT = declaracion;                               
 	:}
 	| declaracionVector:declaracion {:
 		if(debug)
-			System.out.println("\t Regla: recibeParametros ::= declaracionVector");
+			System.out.println("\t Regla: declaraciones ::= declaracion");
 		RESULT = declaracion;                               
-	:}
-	| recibeParametros:declaraciones COMA declaracion:declaracion {:
-		if(debug)
-			System.out.println("\t Regla: recibeParametros ::= recibeParametros COMA declaracion");
-		NodoBase hijoActual = declaraciones;
-		if(hijoActual !=null){
-			while(hijoActual.tieneHermano()){
-				hijoActual = hijoActual.getHermanoDerecha();
-			}
-			hijoActual.setHermanoDerecha(declaracion);
-			RESULT = declaraciones;
-		}else{
-			RESULT = declaracion;
-		}
-	:}
-	| recibeParametros:declaraciones COMA declaracionVector:declaracion {:
-		if(debug)
-			System.out.println("\t Regla: recibeParametros ::= recibeParametros COMA declaracionVector");
-		NodoBase hijoActual = declaraciones;
-		if(hijoActual !=null){
-			while(hijoActual.tieneHermano()){
-				hijoActual = hijoActual.getHermanoDerecha();
-			}
-			hijoActual.setHermanoDerecha(declaracion);
-			RESULT = declaraciones;
-		}else{
-			RESULT = declaracion;
-		}
-	:}
-;
-
-envioParametrosOpcional ::=
-	envioParametros:recibe {:
-		if(debug)
-			System.out.println("\t Regla: envioParametrosOpcional ::= envioParametros");
-		RESULT = recibe;                               
 	:}
 	| {:
 		if(debug)
-			System.out.println("\t Regla: envioParametrosOpcional ::= nada");                             
+			System.out.println("\t Regla: parametros ::= nada ");
 	:}
 ;
 
-envioParametros ::=
-	envioParametros:envios COMA printValor:valor {:
+declaracionesRecibe2 ::=
+	declaracionesRecibe:d {:
 		if(debug)
-			System.out.println("\t Regla: envioParametros ::= envioParametros COMA printValor");
-		NodoBase hijoActual = envios;
-		if(hijoActual !=null){
-			while(hijoActual.tieneHermano()){
-				hijoActual = hijoActual.getHermanoDerecha();
-			}
-			hijoActual.setHermanoDerecha(valor);
-			RESULT = envios;
-		}else{
-			RESULT = valor;
-		}
+			System.out.println("\t Regla: parametros ::= declaraciones ");	
+		RESULT = d;
+	:}
+	| {:
+		if(debug)
+			System.out.println("\t Regla: parametros ::= nada ");
+	:}
+;
+
+declaracionesRecibe ::=
+	declaracionesRecibe COMA printValor {:
+		if(debug)
+			System.out.println("\t Regla: declaracionesRecibe ::= declaracionesRecibe COMA IDENTIFICADOR");
+		RESULT=null;
+		//TODO lo del hermano
 	:}
 	| printValor:valor {:
-		if(debug)
-			System.out.println("\t Regla: envioParametros ::= printValor");
-		RESULT = valor;
+		RESULT = valor;                               
 	:}
 ;
 
@@ -319,6 +268,11 @@ sent ::=
 			System.out.println("\t Regla: sent ::= do");
 		RESULT=sentencia;                              
 	:}
+	| END {:
+		if(debug)
+			System.out.println("\t Regla: sent ::= END");
+		RESULT = null;
+	:}
 	| INPUT IDENTIFICADOR:nombre {:
 		if(debug)
 			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
@@ -326,12 +280,12 @@ sent ::=
 	:}
 	| INPUT IDENTIFICADOR:nombre LCORCHE expresion:ex RCORCHE {:
 		if(debug)
-			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR VECTOR");
+			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
 		RESULT = new NodoLeerVector(nombre,ex);
 	:}
-	| IDENTIFICADOR:nombre LPARENT envioParametrosOpcional:parametros RPARENT {:
+	| IDENTIFICADOR:nombre LPARENT declaracionesRecibe2:parametros RPARENT {:
 		if(debug)
-			System.out.println("\t Regla: sent ::= Llamado a procedimiento");
+			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
 		RESULT = new NodoProcedimientoLlamada(nombre,parametros);
 	:}
 ;
@@ -340,6 +294,7 @@ declaraciones ::=
 	declaraciones:declaraciones COMA declaracion:declaracion {:
 		if(debug)
 			System.out.println("\t Regla: declaraciones ::= declaraciones COMA declaracion");
+		RESULT=null;
 		NodoBase hijoActual = declaraciones;
 		if(hijoActual !=null){
 			while(hijoActual.tieneHermano()){
@@ -687,6 +642,6 @@ separar ::=
 ;
 
 lineas ::=
-	lineas LINEANUEVA {: :}
-	| LINEANUEVA {: :}
+	separar LINEANUEVA {: :}
+	| LINEANUEVA {: :}	
 ;

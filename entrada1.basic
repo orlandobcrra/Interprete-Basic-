@@ -1,0 +1,16 @@
+DIM S1 AS INTEGER, S2 AS INTEGER
+FUNCION()
+END
+
+SUB FUNCION()
+    PRINT "Ingrese valor del Numero 1"
+	INPUT S1
+	PRINT "Ingrese valor del Numero 2"
+	INPUT S2
+	PRINT "El resultado de la suma de ambos numeros es "; S1+S2
+	PRINT "El resultado de la Multiplicacion de ambos numeros es "; S1*S2
+	PRINT "El resultado de la Division de ambos numeros es "; S1/S2
+	PRINT "El resultado de la Resta de ambos numeros es "; S1-S2
+	PRINT "El resultado de la Operacion de potenciacion del numero "; S1; "Elevado a el numero "; S2; "es "; S1^S2
+	PRINT "El resultado de la Operacion modulo es "; S1 MOD S2
+END SUB

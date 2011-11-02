@@ -17,7 +17,7 @@ action code {:
 :}
 
 /* Simbolos Terminales */
-
+terminal LINEANUEVA;
 terminal END;
 terminal SUB;
 terminal DIM;
@@ -65,8 +65,6 @@ terminal WEND;
 terminal DO;
 terminal LOOP;
 terminal UNTIL;
-terminal LINEANUEVA;
-terminal CLS;
 
 /* Simbolos No Terminales */
 non terminal NodoBase programaTotal;
@@ -326,12 +324,12 @@ sent ::=
 	:}
 	| INPUT IDENTIFICADOR:nombre LCORCHE expresion:ex RCORCHE {:
 		if(debug)
-			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR VECTOR");
+			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
 		RESULT = new NodoLeerVector(nombre,ex);
 	:}
 	| IDENTIFICADOR:nombre LPARENT envioParametrosOpcional:parametros RPARENT {:
 		if(debug)
-			System.out.println("\t Regla: sent ::= Llamado a procedimiento");
+			System.out.println("\t Regla: sent ::= INPUT IDENTIFICADOR");
 		RESULT = new NodoProcedimientoLlamada(nombre,parametros);
 	:}
 ;

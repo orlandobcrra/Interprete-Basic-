@@ -23,7 +23,7 @@ import java_cup.runtime.SymbolFactory;
 digito			= [0-9]
 numero			= {digito}+("."{digito}+)?
 letra			= [a-zA-Z]
-identificador	= {letra}([a-zA-Z0-9.%$])*
+identificador	= {letra}([a-zA-Z0-9.%$_])*
 nuevalinea		= \n | \n\r | \r\n
 espacio			= [ \t]+
 cadena			= "\""[^\"]*"\""
@@ -265,6 +265,11 @@ cadena			= "\""[^\"]*"\""
 	if(debug)
 		System.out.println("token LINEANUEVA");
 	return sf.newSymbol("LINEANUEVA",Symbols.LINEANUEVA);
+}
+"CLS" {
+	if(debug)
+		System.out.println("token CLS");
+	return sf.newSymbol("CLS",Symbols.CLS);
 }
 {espacio} {
 	/*Salta espacios en blanco*/

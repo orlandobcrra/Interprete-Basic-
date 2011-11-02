@@ -1,0 +1,28 @@
+import java_cup.runtime.*;
+import ast.*;
+
+action code {:
+	private NodoBase root=null;
+	private NodoBase funciones=null;
+	private boolean debug=true;	
+	private int lineaNum=0;
+
+	public NodoBase getRoot(){
+		return root;
+	}
+	
+	public NodoBase getFunciones(){
+		return funciones;
+	}
+:}
+
+/* Simbolos Terminales */
+terminal MOD;
+terminal LINEANUEVA;
+
+/* Simbolos No Terminales */
+non terminal NodoBase expresion;
+
+/* REGLAS GRAMATICALES */
+
+expresion ::= MOD LINEANUEVA{: System.out.println("Simbolo matematico"); :};
